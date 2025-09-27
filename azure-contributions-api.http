@@ -1,6 +1,0 @@
-@azure_contributions_api_HostAddress = http://localhost:5297
-
-GET {{azure_contributions_api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
