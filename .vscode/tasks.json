@@ -1,0 +1,36 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "env": {
+            "DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER": "1"
+        }
+    },
+    "tasks": [
+        {
+            "label": "Debug build",
+            "type": "shell",
+            "command": "dotnet build --property WarningLevel=0",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent",
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Run",
+            "type": "shell",
+            "command": "dotnet build --property WarningLevel=0 && dotnet watch --non-interactive --property WarningLevel=0 run",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent",
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+    ]
+}
