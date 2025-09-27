@@ -1,7 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 
-namespace Contribution.AzureDevOps.Utils;
+namespace Contribution.Common.Auth;
 
 public static class AuthHelpers
 {
