@@ -15,6 +15,7 @@ public class ContributionsController(IContributionsManager svc) : ControllerBase
         [FromQuery] string email,
         [FromQuery] string organization,
         [FromQuery] int year,
+        [FromQuery] bool includeActivity = false,
         [FromQuery] bool includeBreakdown = false)
     {
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(organization))
@@ -25,7 +26,7 @@ public class ContributionsController(IContributionsManager svc) : ControllerBase
 
         (_, string pat) = AuthHelpers.ExtractAuthDetails(Request.Headers.Authorization.ToString() ?? string.Empty) ?? (string.Empty, string.Empty);
 
-        var result = await svc.GetContributionsAsync(email, organization, year, pat, includeBreakdown);
+        var result = await svc.GetContributionsAsync(email, organization, year, pat, includeBreakdown, includeActivity);
         return Ok(result);
     }
 }

@@ -12,7 +12,7 @@ public class ContributionsManager(
     ILogger<ContributionsManager> logger,
     IEnumerable<IContributionStrategy> contributionStrategies) : IContributionsManager
 {
-    public async Task<ContributionsResponse> GetContributionsAsync(string email, string organization, int year, string pat, bool includeBreakdown)
+    public async Task<ContributionsResponse> GetContributionsAsync(string email, string organization, int year, string pat, bool includeBreakdown, bool includeActivity)
     {
         var stopwatch = Stopwatch.StartNew();
         var response = new ContributionsResponse();
@@ -55,18 +55,20 @@ public class ContributionsManager(
                 {
                     lock (days)
                     {
-                        // days[kvp.Key] = days.GetValueOrDefault(kvp.Key, 0) + kvp.Value;
                         if (days.TryGetValue(kvp.Key, out var existing))
                         {
                             existing.Count += kvp.Value.Count;
-                            existing.Activity[strategyName] = kvp.Value.Count;
                         }
+                        // Should not happen, but just in case
                         else
                         {
-                            days[kvp.Key] = new Common.Models.Contribution(kvp.Key, kvp.Value.Count)
-                            {
-                                Activity = { [strategyName] = kvp.Value.Count }
-                            };
+                            days[kvp.Key] = new Common.Models.Contribution(kvp.Key, kvp.Value.Count);
+                        }
+
+                        if (includeActivity)
+                        {
+                            days[kvp.Key].Activity ??= [];
+                            days[kvp.Key].Activity![strategyName] = kvp.Value.Count;
                         }
                     }
                 }

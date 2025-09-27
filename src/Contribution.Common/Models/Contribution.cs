@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Contribution.Common.Models;
 
 public class Contribution(string Date, int Count)
@@ -15,5 +17,7 @@ public class Contribution(string Date, int Count)
             return 4;
         }
     }
-    public Dictionary<string, int> Activity { get; set; } = [];
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Dictionary<string, int>? Activity { get; set; } = null;
 }
