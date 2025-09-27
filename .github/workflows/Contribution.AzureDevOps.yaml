@@ -69,11 +69,11 @@ jobs:
       # Publish the application
       - name: Publish Contribution.AzureDevOps
         run: |
-          dotnet publish ${{ env.AZUREDEVOPS_PROJECT_PATH }} -c Release --property:PublishDir='${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/azcapi' --no-restore
+          dotnet publish ${{ env.AZUREDEVOPS_PROJECT_PATH }} -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/azcapi' --no-restore
       
       # Upload build artifacts for debugging
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: contribution-api-build
           path: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/azcapi'
