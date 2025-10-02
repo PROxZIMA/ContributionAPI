@@ -65,7 +65,7 @@ public class GitHubContributionsManager(IGitHubRepository repository, ILogger<Gi
                     {
                         existing.Activity ??= [];
                         // GitHub calendar lumps all contributions; we treat as "all" activity type
-                        existing.Activity["all"] = existing.Count;
+                        existing.Activity[ContributionTypes.All] = existing.Count;
                     }
                 }
             }
@@ -76,11 +76,11 @@ public class GitHubContributionsManager(IGitHubRepository repository, ILogger<Gi
         {
             response.Breakdown = new Dictionary<string, int>
             {
-                {"commits", collection.TotalCommitContributions},
-                {"issues", collection.TotalIssueContributions},
-                {"pullrequests", collection.TotalPullRequestContributions},
-                {"reviews", collection.TotalPullRequestReviewContributions},
-                {"restricted", collection.RestrictedContributionsCount}
+                {ContributionTypes.Commits, collection.TotalCommitContributions},
+                {ContributionTypes.Issues, collection.TotalIssueContributions},
+                {ContributionTypes.PullRequests, collection.TotalPullRequestContributions},
+                {ContributionTypes.Reviews, collection.TotalPullRequestReviewContributions},
+                {ContributionTypes.Restricted, collection.RestrictedContributionsCount}
             };
         }
 

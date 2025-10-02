@@ -5,15 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug Project",
+            "name": "Debug Azure",
             "type": "coreclr",
             "request": "launch",
             "requireExactSource": false,
             "console": "integratedTerminal",
             "args": [],
-            "preLaunchTask": "Debug build",
-            "program": "${workspaceFolder}/bin/Debug/net9.0/azure-contributions-api.dll",
-            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Debug build Azure",
+            "program": "${workspaceFolder}/src/Contribution.AzureDevOps/bin/Debug/net9.0/Contribution.AzureDevOps.dll",
+            "cwd": "${workspaceFolder}/src/Contribution.AzureDevOps/",
+            "launchSettingsProfile": "https",
             // "postDebugTask": "Clear debug ENV variable",
             "stopAtEntry": false,
             "launchBrowser": {
@@ -21,6 +22,47 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        {
+            "name": "Debug GitHub",
+            "type": "coreclr",
+            "request": "launch",
+            "requireExactSource": false,
+            "console": "integratedTerminal",
+            "args": [],
+            "preLaunchTask": "Debug build GitHub",
+            "program": "${workspaceFolder}/src/Contribution.GitHub/bin/Debug/net9.0/Contribution.GitHub.dll",
+            "cwd": "${workspaceFolder}/src/Contribution.GitHub/",
+            "launchSettingsProfile": "https",
+            // "postDebugTask": "Clear debug ENV variable",
+            "stopAtEntry": false,
+            "launchBrowser": {
+                "enabled": false
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        {
+            "name": "Debug Hub",
+            "type": "coreclr",
+            "request": "launch",
+            "requireExactSource": false,
+            "console": "integratedTerminal",
+            "args": [],
+            "preLaunchTask": "Debug build Hub",
+            "program": "${workspaceFolder}/src/Contribution.Hub/bin/Debug/net9.0/Contribution.Hub.dll",
+            "cwd": "${workspaceFolder}/src/Contribution.Hub/",
+            "launchSettingsProfile": "https",
+            // "postDebugTask": "Clear debug ENV variable",
+            "stopAtEntry": false,
+            "launchBrowser": {
+                "enabled": false
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "GOOGLE_APPLICATION_CREDENTIALS": "contribution-token-manager.json"
             }
         }
     ]

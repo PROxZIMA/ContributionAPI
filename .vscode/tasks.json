@@ -7,30 +7,107 @@
     },
     "tasks": [
         {
-            "label": "Debug build",
+            "label": "Run Contribution API",
+            "dependsOn": [
+                "Run Azure",
+                "Run GitHub",
+                "Run Hub"
+            ],
+            "dependsOrder": "parallel",
+            "problemMatcher": []
+        },
+        {
+            "label": "Debug build Azure",
             "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/Contribution.AzureDevOps"
+            },
             "command": "dotnet build --property WarningLevel=0",
             "problemMatcher": [],
             "presentation": {
-                "reveal": "silent",
+                "reveal": "silent"
             },
             "group": {
-                "kind": "build",
-                "isDefault": true
+                "kind": "build"
             }
         },
         {
-            "label": "Run",
+            "label": "Run Azure",
             "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/Contribution.AzureDevOps"
+            },
             "command": "dotnet build --property WarningLevel=0 && dotnet watch --non-interactive --property WarningLevel=0 run",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "silent",
+                "group": "shared"
             },
             "group": {
-                "kind": "build",
-                "isDefault": true
+                "kind": "build"
             }
         },
+        {
+            "label": "Debug build GitHub",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/Contribution.GitHub"
+            },
+            "command": "dotnet build --property WarningLevel=0",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "label": "Run GitHub",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/Contribution.GitHub"
+            },
+            "command": "dotnet build --property WarningLevel=0 && dotnet watch --non-interactive --property WarningLevel=0 run",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent",
+                "group": "shared"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "label": "Debug build Hub",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/Contribution.Hub"
+            },
+            "command": "dotnet build --property WarningLevel=0",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "label": "Run Hub",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/Contribution.Hub"
+            },
+            "command": "dotnet build --property WarningLevel=0 && dotnet watch --non-interactive --property WarningLevel=0 run",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent",
+                "group": "shared"
+            },
+            "group": {
+                "kind": "build"
+            }
+        }
     ]
 }

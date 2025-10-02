@@ -4,11 +4,13 @@ using Microsoft.TeamFoundation.SourceControl.WebApi;
 using Microsoft.VisualStudio.Services.Identity;
 using Contribution.Common.Models;
 using Contribution.Common.Constants;
+using Contribution.Common.Attributes;
 using Contribution.AzureDevOps.Repository;
 using Contribution.AzureDevOps.Factory;
 
 namespace Contribution.AzureDevOps.Strategy;
 
+[ContributionType(ContributionTypes.PullRequests)]
 public sealed class PullRequestContributionStrategy(
     IAzureDevOpsRepository repository,
     IAzureClientFactory azureClientFactory,

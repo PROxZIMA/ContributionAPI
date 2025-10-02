@@ -5,11 +5,13 @@ using Microsoft.TeamFoundation.WorkItemTracking.WebApi.Models;
 using Microsoft.VisualStudio.Services.Identity;
 using Contribution.Common.Models;
 using Contribution.Common.Constants;
+using Contribution.Common.Attributes;
 using Contribution.AzureDevOps.Repository;
 using Contribution.AzureDevOps.Factory;
 
 namespace Contribution.AzureDevOps.Strategy;
 
+[ContributionType(ContributionTypes.WorkItems)]
 public sealed class WorkItemContributionStrategy(
     IAzureDevOpsRepository repository,
     IAzureClientFactory azureClientFactory,

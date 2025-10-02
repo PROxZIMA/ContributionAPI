@@ -1,7 +1,9 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Reflection;
 using Contribution.Common.Constants;
 using Contribution.Common.Models;
+using Contribution.Common.Attributes;
 using Contribution.AzureDevOps.Repository;
 using Contribution.AzureDevOps.Strategy;
 
@@ -47,7 +49,10 @@ public class ContributionsManager(
         {
             try
             {
-                var strategyName = strategy.GetType().Name.Replace("ContributionStrategy", "").ToLowerInvariant();
+                // Get contribution type from attribute
+                var contributionTypeAttr = strategy.GetType().GetCustomAttribute<ContributionTypeAttribute>();
+                var contributionType = contributionTypeAttr?.ContributionType ?? strategy.GetType().Name.Replace("ContributionStrategy", "").ToLowerInvariant();
+                
                 var contributions = await strategy.GetContributionsAsync(identity, organization, pat, from, to);
                 
                 // Merge strategy results into main dictionary
@@ -68,20 +73,21 @@ public class ContributionsManager(
                         if (includeActivity)
                         {
                             days[kvp.Key].Activity ??= [];
-                            days[kvp.Key].Activity![strategyName] = kvp.Value.Count;
+                            days[kvp.Key].Activity![contributionType] = kvp.Value.Count;
                         }
                     }
                 }
 
-                // Track breakdown by strategy type
+                // Track breakdown by strategy type using constant
                 var strategyTotal = contributions.Values.Sum(c => c.Count);
-                breakdownCounts.TryAdd(strategyName, strategyTotal);
+                breakdownCounts.TryAdd(contributionType, strategyTotal);
             }
             catch (Exception ex)
             {
-                var strategyName = strategy.GetType().Name;
-                logger.LogWarning(ex, "Error executing strategy {Strategy}", strategyName);
-                errors.Add($"strategy:{strategyName}, reason:{ex.Message}");
+                var contributionTypeAttr = strategy.GetType().GetCustomAttribute<ContributionTypeAttribute>();
+                var contributionType = contributionTypeAttr?.ContributionType ?? strategy.GetType().Name;
+                logger.LogWarning(ex, "Error executing strategy {Strategy}", contributionType);
+                errors.Add($"strategy:{contributionType}, reason:{ex.Message}");
             }
         });
 

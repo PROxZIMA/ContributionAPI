@@ -11,7 +11,7 @@ public static class AuthHelpers
         try
         {
             var headerValue = AuthenticationHeaderValue.Parse(authHeader);
-            
+
             if (string.Equals(headerValue.Scheme, "Bearer", StringComparison.OrdinalIgnoreCase))
             {
                 return ("Bearer", headerValue.Parameter?.Trim() ?? string.Empty);

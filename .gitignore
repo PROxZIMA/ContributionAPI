@@ -3,6 +3,7 @@
 *.user
 *.sln.docstates
 temp/
+contribution-token-manager.json
 
 # Build results
 [Dd]ebug/
