@@ -4,6 +4,7 @@ using Contribution.Hub.Services;
 using Contribution.Hub.Managers;
 using Contribution.Hub.Factory;
 using Contribution.Common.Auth;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,11 +17,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<HubOptions>(
     builder.Configuration.GetSection(HubOptions.SectionName));
 
-// // Add authentication
-// builder.Services.AddAuthentication("Custom")
-//     .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, CommonAuthenticationHandler>(
-//         "Custom", options => { });
-
 builder.Services.AddAuthorization();
 
 // Register services
@@ -31,6 +27,18 @@ builder.Services.AddScoped<IContributionAggregatorManager, ContributionAggregato
 
 // Register HTTP client for external service calls
 builder.Services.AddHttpClient<IContributionServiceClient, ContributionServiceClient>();
+
+// Add response caching
+builder.Services.AddRateLimiter(options =>
+{
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429; // Too Many Requests
+        await context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", token);
+    };
+});
+
+builder.Services.AddResponseCaching();
 
 // Add logging
 builder.Services.AddLogging();
@@ -46,8 +54,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseRateLimiter();
+app.UseResponseCaching();
 
 app.MapControllers();
 

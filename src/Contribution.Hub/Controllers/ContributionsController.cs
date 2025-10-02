@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Contribution.Hub.Managers;
-// using Contribution.Common.Auth;
-// using Microsoft.AspNetCore.Authorization;
 
 namespace Contribution.Hub.Controllers;
 
-// [Authorize]
 [ApiController]
 [Route("[controller]")]
 public class ContributionsController(
