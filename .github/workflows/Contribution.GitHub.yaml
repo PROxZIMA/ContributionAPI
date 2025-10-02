@@ -1,28 +1,28 @@
-name: AzureDevOps Contribution API
+name: GitHub Contribution API
 
 on:
   push:
     branches: [ master, main ]
     paths:
       - 'src/Contribution.Common/**'
-      - 'src/Contribution.AzureDevOps/**'
-      - '.github/workflows/Contribution.AzureDevOps.yaml'
+      - 'src/Contribution.GitHub/**'
+      - '.github/workflows/Contribution.GitHub.yaml'
   # # Not sure if needed as of now cuz build are pushed straight to Azure Web App Service
   # pull_request:
   #   branches: [ master, main ]
   #   paths:
   #     - 'src/Contribution.Common/**'
-  #     - 'src/Contribution.AzureDevOps/**'
+  #     - 'src/Contribution.GitHub/**'
 
 permissions:
       id-token: write
       contents: read
 
 env:
-  AZURE_WEBAPP_NAME: c-az-api
+  AZURE_WEBAPP_NAME: c-gh-api
   AZURE_WEBAPP_PACKAGE_PATH: '.'
   DOTNET_VERSION: '9.0.x'
-  AZUREDEVOPS_PROJECT_PATH: 'src/Contribution.AzureDevOps/Contribution.AzureDevOps.csproj'
+  GITHUB_PROJECT_PATH: 'src/Contribution.GitHub/Contribution.GitHub.csproj'
 
 jobs:
   build:
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@main
       - uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS_AZUREDEVOPS }}
+          creds: ${{ secrets.AZURE_CREDENTIALS_GITHUB }}
 
       # Setup .NET Core SDK
       - name: Setup .NET Core
@@ -41,11 +41,11 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }} 
       
-      # Build and test Contribution.AzureDevOps
-      - name: Build Contribution.AzureDevOps
+      # Build and test Contribution.GitHub
+      - name: Build Contribution.GitHub
         run: |
-          dotnet restore ${{ env.AZUREDEVOPS_PROJECT_PATH }}
-          dotnet build ${{ env.AZUREDEVOPS_PROJECT_PATH }} --configuration Release --no-restore
+          dotnet restore ${{ env.GITHUB_PROJECT_PATH }}
+          dotnet build ${{ env.GITHUB_PROJECT_PATH }} --configuration Release --no-restore
       
       # Run tests (if any test projects exist)
       - name: Run tests
@@ -57,9 +57,9 @@ jobs:
           fi
       
       # Publish the application
-      - name: Publish Contribution.AzureDevOps
+      - name: Publish Contribution.GitHub
         run: |
-          dotnet publish ${{ env.AZUREDEVOPS_PROJECT_PATH }} -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{ env.AZURE_WEBAPP_NAME }}' --no-restore
+          dotnet publish ${{ env.GITHUB_PROJECT_PATH }} -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{ env.AZURE_WEBAPP_NAME }}' --no-restore
       
       # Upload build artifacts for debugging
       - name: Upload build artifacts

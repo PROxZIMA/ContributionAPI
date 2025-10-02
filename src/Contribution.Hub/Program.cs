@@ -56,6 +56,12 @@ app.UseHttpsRedirection();
 
 app.UseRateLimiter();
 app.UseResponseCaching();
+app.UseCors(builder =>
+{
+    builder.AllowAnyOrigin()
+           .AllowAnyMethod()
+           .AllowAnyHeader();
+});
 
 app.MapControllers();
 

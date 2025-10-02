@@ -13,6 +13,7 @@ public class ContributionsController(
     private readonly ILogger<ContributionsController> _logger = logger;
 
     [HttpGet]
+    [ResponseCache(Duration = 300)]
     public async Task<IActionResult> Get(
         [FromQuery] string userId,
         [FromQuery] int year,
