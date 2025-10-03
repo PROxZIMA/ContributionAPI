@@ -20,7 +20,6 @@ env:
   DOTNET_VERSION: '9.0.x'
   ASPNETCORE_ENVIRONMENT: Production
   PROJECT_PATH: 'src/Contribution.Hub/Contribution.Hub.csproj'
-  GOOGLE_APPLICATION_CREDENTIALS: 'contribution-manager.json'
 
 jobs:
   build:
