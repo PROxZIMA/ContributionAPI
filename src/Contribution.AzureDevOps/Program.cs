@@ -116,7 +116,9 @@ public class Program
         app.UseResponseCaching();
         app.UseCors(builder =>
         {
-            builder.AllowAnyOrigin();
+            builder.WithOrigins("http://localhost:9002", "https://c-m-app.azurewebsites.net")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
         });
 
         app.UseRouting();

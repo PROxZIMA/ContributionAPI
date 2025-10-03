@@ -14,10 +14,6 @@ on:
   #     - 'src/Contribution.Common/**'
   #     - 'src/Contribution.GitHub/**'
 
-permissions:
-      id-token: write
-      contents: read
-
 env:
   AZURE_WEBAPP_NAME: c-gh-api
   AZURE_WEBAPP_PACKAGE_PATH: '.'
@@ -28,6 +24,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
     
     steps:
       # Check out the repo
@@ -62,13 +62,13 @@ jobs:
         run: |
           dotnet publish ${{ env.PROJECT_PATH }} -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{ env.AZURE_WEBAPP_NAME }}' --no-restore
       
-      # Upload build artifacts for debugging
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: contribution-api-build
-          path: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{ env.AZURE_WEBAPP_NAME }}'
-          retention-days: 30
+      # # No Upload build artifacts for debugging until google credentials json is sorted via env
+      # - name: Upload build artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: contribution-api-build
+      #     path: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{ env.AZURE_WEBAPP_NAME }}'
+      #     retention-days: 30
           
       # Deploy to Azure Web apps
       - name: 'Run Azure webapp deploy action using publish profile credentials'

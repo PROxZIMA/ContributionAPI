@@ -15,6 +15,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<HubOptions>(
     builder.Configuration.GetSection(HubOptions.SectionName));
 
+// builder.Configuration.AddEnvironmentVariables(source => source.Prefix = "HUB_");
+
 builder.Services.AddAuthorization();
 
 // Register services
@@ -48,7 +50,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    });
 }
 
 app.UseHttpsRedirection();
@@ -57,7 +62,9 @@ app.UseRateLimiter();
 app.UseResponseCaching();
 app.UseCors(builder =>
 {
-    builder.AllowAnyOrigin();
+    builder.WithOrigins("http://localhost:9002", "https://c-m-app.azurewebsites.net")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
 });
 
 app.MapControllers();

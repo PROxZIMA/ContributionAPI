@@ -14,10 +14,6 @@ on:
   #     - 'src/Contribution.Common/**'
   #     - 'src/Contribution.Hub/**'
 
-permissions:
-      id-token: write
-      contents: read
-
 env:
   AZURE_WEBAPP_NAME: c-hub-api
   AZURE_WEBAPP_PACKAGE_PATH: '.'
@@ -30,18 +26,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       # Check out the repo
       - uses: actions/checkout@main
       - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS_HUB }}
-
-      # Setup Google Application Credentials
-      - name: Setup Google Application Credentials
-        run: |
-          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 --decode > src/Contribution.Hub/contribution-manager.json
-          echo "Google credentials configured successfully"
 
       # Setup .NET Core SDK
       - name: Setup .NET Core
@@ -68,14 +62,20 @@ jobs:
       - name: Publish Contribution.Hub
         run: |
           dotnet publish ${{ env.PROJECT_PATH }} -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{ env.AZURE_WEBAPP_NAME }}' --no-restore
+
+      # Setup Google Application Credentials
+      - name: Setup Google Application Credentials
+        run: |
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 --decode > '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{ env.AZURE_WEBAPP_NAME }}/contribution-manager.json'
+          echo "Google credentials configured successfully"
       
-      # Upload build artifacts for debugging
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: contribution-api-build
-          path: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{ env.AZURE_WEBAPP_NAME }}'
-          retention-days: 30
+      # # No Upload build artifacts for debugging until google credentials json is sorted via env
+      # - name: Upload build artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: contribution-api-build
+      #     path: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{ env.AZURE_WEBAPP_NAME }}'
+      #     retention-days: 30
           
       # Deploy to Azure Web apps
       - name: 'Run Azure webapp deploy action using publish profile credentials'

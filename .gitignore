@@ -4,6 +4,7 @@
 *.sln.docstates
 temp/
 contribution-manager.json
+gha-creds-*.json
 
 # Build results
 [Dd]ebug/
