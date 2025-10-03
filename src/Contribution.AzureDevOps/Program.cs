@@ -22,21 +22,21 @@ public class Program
         builder.Services.AddMemoryCache();
         builder.Services.AddHttpClient(); // for REST calls if needed
         builder.Services.Configure<ContributionsOptions>(builder.Configuration.GetSection("Contributions"));
-        
+
         // Register cache service as singleton for shared caching across requests
         builder.Services.AddSingleton<IAzureDevOpsCacheManager, AzureDevOpsCacheManager>();
-        
+
         // Register repository as scoped now that it uses singleton cache service
         builder.Services.AddScoped<IAzureDevOpsRepository, AzureDevOpsRepository>();
-        
+
         // Register factory and service as scoped to reuse connection per request
         builder.Services.AddScoped<IAzureClientFactory, AzureClientFactory>();
-        
+
         // Register all contribution strategies
         builder.Services.AddScoped<IContributionStrategy, CommitContributionStrategy>();
         builder.Services.AddScoped<IContributionStrategy, PullRequestContributionStrategy>();
         builder.Services.AddScoped<IContributionStrategy, WorkItemContributionStrategy>();
-        
+
         builder.Services.AddScoped<IContributionsManager, ContributionsManager>();
         builder.Services.AddLogging();
 
@@ -86,6 +86,18 @@ public class Program
         builder.Services.AddAuthentication("Authentication")
             .AddScheme<AuthenticationSchemeOptions, CommonAuthenticationHandler>("Authentication", null);
 
+        // Add rate limiting
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.OnRejected = async (context, token) =>
+            {
+                context.HttpContext.Response.StatusCode = 429; // Too Many Requests
+                await context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", token);
+            };
+        });
+
+        // Add response caching
+        builder.Services.AddResponseCaching();
 
         var app = builder.Build();
 
@@ -100,6 +112,12 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+        app.UseRateLimiter();
+        app.UseResponseCaching();
+        app.UseCors(builder =>
+        {
+            builder.AllowAnyOrigin();
+        });
 
         app.UseRouting();
 

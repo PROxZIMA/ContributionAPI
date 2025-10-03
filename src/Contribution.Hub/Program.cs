@@ -3,8 +3,6 @@ using Contribution.Hub.Repository;
 using Contribution.Hub.Services;
 using Contribution.Hub.Managers;
 using Contribution.Hub.Factory;
-using Contribution.Common.Auth;
-using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +26,7 @@ builder.Services.AddScoped<IContributionAggregatorManager, ContributionAggregato
 // Register HTTP client for external service calls
 builder.Services.AddHttpClient<IContributionServiceClient, ContributionServiceClient>();
 
-// Add response caching
+// Add rate limiting
 builder.Services.AddRateLimiter(options =>
 {
     options.OnRejected = async (context, token) =>
@@ -38,6 +36,7 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
+// Add response caching
 builder.Services.AddResponseCaching();
 
 // Add logging
@@ -58,9 +57,7 @@ app.UseRateLimiter();
 app.UseResponseCaching();
 app.UseCors(builder =>
 {
-    builder.AllowAnyOrigin()
-           .AllowAnyMethod()
-           .AllowAnyHeader();
+    builder.AllowAnyOrigin();
 });
 
 app.MapControllers();

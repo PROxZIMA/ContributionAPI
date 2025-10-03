@@ -22,7 +22,9 @@ env:
   AZURE_WEBAPP_NAME: c-hub-api
   AZURE_WEBAPP_PACKAGE_PATH: '.'
   DOTNET_VERSION: '9.0.x'
-  HUB_PROJECT_PATH: 'src/Contribution.Hub/Contribution.Hub.csproj'
+  ASPNETCORE_ENVIRONMENT: Production
+  PROJECT_PATH: 'src/Contribution.Hub/Contribution.Hub.csproj'
+  GOOGLE_APPLICATION_CREDENTIALS: 'contribution-manager.json'
 
 jobs:
   build:
@@ -38,8 +40,8 @@ jobs:
       # Setup Google Application Credentials
       - name: Setup Google Application Credentials
         run: |
-          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 --decode > src/Contribution.Hub/contribution-token-manager.json
-          echo "Google credentials linked successfully"
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 --decode > src/Contribution.Hub/contribution-manager.json
+          echo "Google credentials configured successfully"
 
       # Setup .NET Core SDK
       - name: Setup .NET Core
@@ -50,8 +52,8 @@ jobs:
       # Build and test Contribution.Hub
       - name: Build Contribution.Hub
         run: |
-          dotnet restore ${{ env.HUB_PROJECT_PATH }}
-          dotnet build ${{ env.HUB_PROJECT_PATH }} --configuration Release --no-restore
+          dotnet restore ${{ env.PROJECT_PATH }}
+          dotnet build ${{ env.PROJECT_PATH }} --configuration Release --no-restore
       
       # Run tests (if any test projects exist)
       - name: Run tests
@@ -65,7 +67,7 @@ jobs:
       # Publish the application
       - name: Publish Contribution.Hub
         run: |
-          dotnet publish ${{ env.HUB_PROJECT_PATH }} -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{ env.AZURE_WEBAPP_NAME }}' --no-restore
+          dotnet publish ${{ env.PROJECT_PATH }} -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/${{ env.AZURE_WEBAPP_NAME }}' --no-restore
       
       # Upload build artifacts for debugging
       - name: Upload build artifacts

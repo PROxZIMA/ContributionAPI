@@ -51,6 +51,19 @@ public class Program
         builder.Services.AddAuthentication("Authentication")
             .AddScheme<AuthenticationSchemeOptions, CommonAuthenticationHandler>("Authentication", null);
 
+        // Add rate limiting
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.OnRejected = async (context, token) =>
+            {
+                context.HttpContext.Response.StatusCode = 429; // Too Many Requests
+                await context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", token);
+            };
+        });
+
+        // Add response caching
+        builder.Services.AddResponseCaching();
+
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
@@ -63,6 +76,12 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+        app.UseRateLimiter();
+        app.UseResponseCaching();
+        app.UseCors(builder =>
+        {
+            builder.AllowAnyOrigin();
+        });
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
