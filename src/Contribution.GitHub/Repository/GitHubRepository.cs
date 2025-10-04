@@ -5,11 +5,19 @@ using Contribution.GitHub.Models;
 
 namespace Contribution.GitHub.Repository;
 
-public class GitHubRepository(ILogger<GitHubRepository> logger, IHttpClientFactory httpClientFactory) : IGitHubRepository
+public class GitHubRepository : IGitHubRepository
 {
     private const string GraphQlEndpoint = "https://api.github.com/graphql";
-    private readonly ILogger<GitHubRepository> _logger = logger;
-    private readonly HttpClient _client = httpClientFactory.CreateClient("github-graphql");
+    private readonly ILogger<GitHubRepository> _logger;
+    private readonly HttpClient _client;
+
+    public GitHubRepository(ILogger<GitHubRepository> logger, IHttpClientFactory httpClientFactory)
+    {
+        _logger = logger;
+        _client = httpClientFactory.CreateClient("github-graphql");
+        if (!_client.DefaultRequestHeaders.Contains("User-Agent"))
+            _client.DefaultRequestHeaders.Add("User-Agent", "ContributionAPI");
+    }
 
     public async Task<(GitHubUser? User, List<GitHubGraphQLError>? Errors)> GetUserContributionsAsync(string username, DateTime from, DateTime to, string pat, CancellationToken ct = default)
     {
