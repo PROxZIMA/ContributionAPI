@@ -1,9 +1,12 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
+using Microsoft.Extensions.Options;
 using Contribution.Common.Constants;
 using Contribution.Common.Models;
 using Contribution.Common.Attributes;
+using Contribution.Common.Managers;
+using Contribution.Common.Helpers;
 using Contribution.AzureDevOps.Repository;
 using Contribution.AzureDevOps.Strategy;
 
@@ -12,11 +15,43 @@ namespace Contribution.AzureDevOps.Managers;
 public class ContributionsManager(
     IAzureDevOpsRepository repository,
     ILogger<ContributionsManager> logger,
-    IEnumerable<IContributionStrategy> contributionStrategies) : IContributionsManager
+    IEnumerable<IContributionStrategy> contributionStrategies,
+    ICacheManager cacheManager,
+    IOptions<ContributionsOptions> options) : IContributionsManager
 {
     public async Task<ContributionsResponse> GetContributionsAsync(string email, string organization, int year, string pat, bool includeBreakdown, bool includeActivity)
     {
         var stopwatch = Stopwatch.StartNew();
+        
+        // Generate cache key based on email, org, year, and hashed PAT
+        var cacheKey = CacheKeyHelper.GenerateAzureContributionsCacheKey(email, organization, year, pat);
+        var cacheExpiration = TimeSpan.FromMinutes(options.Value.ContributionsCacheMinutes);
+        
+        // Try to get cached response with full breakdown and activity
+        var cacheResult = await cacheManager.GetOrSetWithStatusAsync(cacheKey, async () =>
+        {
+            return await GenerateContributionsResponseAsync(email, organization, year, pat);
+        }, cacheExpiration);
+
+        if (cacheResult.Value == null)
+        {
+            var errorResponse = new ContributionsResponse();
+            errorResponse.Meta.ElapsedMs = stopwatch.ElapsedMilliseconds;
+            errorResponse.Meta.CacheHit = cacheResult.IsHit;
+            errorResponse.Meta.Errors = [$"Could not resolve identity for {email} in {organization}"];
+            return errorResponse;
+        }
+
+        // Clone the cached response and filter based on requested options
+        var response = CloneResponseWithFiltering(cacheResult.Value, includeBreakdown, includeActivity);
+        response.Meta.ElapsedMs = stopwatch.ElapsedMilliseconds;
+        response.Meta.CacheHit = cacheResult.IsHit;
+        
+        return response;
+    }
+
+    private async Task<ContributionsResponse?> GenerateContributionsResponseAsync(string email, string organization, int year, string pat)
+    {
         var response = new ContributionsResponse();
 
         // validate year -> build UTC range
@@ -32,9 +67,7 @@ public class ContributionsManager(
         var identity = await repository.GetIdentityAsync(organization, email, pat);
         if (identity == null)
         {
-            response.Meta.ElapsedMs = stopwatch.ElapsedMilliseconds;
-            response.Meta.Errors = [ $"Could not resolve identity for {email} in {organization}" ];
-            return response;
+            return null;
         }
 
         // 2) Get projects count for metadata
@@ -70,11 +103,9 @@ public class ContributionsManager(
                             days[kvp.Key] = new Common.Models.Contribution(kvp.Key, kvp.Value.Count);
                         }
 
-                        if (includeActivity)
-                        {
-                            days[kvp.Key].Activity ??= [];
-                            days[kvp.Key].Activity![contributionType] = kvp.Value.Count;
-                        }
+                        // Always populate activity in cached response for filtering later
+                        days[kvp.Key].Activity ??= [];
+                        days[kvp.Key].Activity![contributionType] = kvp.Value.Count;
                     }
                 }
 
@@ -113,14 +144,39 @@ public class ContributionsManager(
 
         response.Contributions = [.. days.Values.OrderBy(d => d.Date)];
 
-        if (includeBreakdown)
-        {
-            response.Breakdown = breakdownCounts.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        }
+        // Always store breakdown in cache for filtering later
+        response.Breakdown = breakdownCounts.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-        response.Meta.ElapsedMs = stopwatch.ElapsedMilliseconds;
         response.Meta.Errors = [.. errors];
-        response.Meta.CachedProjects = false;
+
+        return response;
+    }
+
+    private static ContributionsResponse CloneResponseWithFiltering(ContributionsResponse cached, bool includeBreakdown, bool includeActivity)
+    {
+        var response = new ContributionsResponse
+        {
+            Total = new Dictionary<string, int>(cached.Total),
+            Meta = new MetaInfo
+            {
+                ScannedProjects = cached.Meta.ScannedProjects,
+                ScannedRepos = cached.Meta.ScannedRepos,
+                Errors = [.. cached.Meta.Errors],
+            },
+            // Clone contributions and filter activity based on request
+            Contributions = [.. cached.Contributions.Select(c => new Common.Models.Contribution(
+                c.Date,
+                c.Count)
+            {
+                Activity = includeActivity ? (c.Activity != null ? new Dictionary<string, int>(c.Activity) : null) : null
+            })]
+        };
+
+        // Include breakdown only if requested
+        if (includeBreakdown && cached.Breakdown != null)
+        {
+            response.Breakdown = new Dictionary<string, int>(cached.Breakdown);
+        }
 
         return response;
     }

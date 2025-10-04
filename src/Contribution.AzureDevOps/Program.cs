@@ -1,4 +1,5 @@
 using Contribution.Common.Auth;
+using Contribution.Common.Managers;
 using Contribution.AzureDevOps.Managers;
 using Contribution.AzureDevOps.Strategy;
 using Contribution.Common.Models;
@@ -24,7 +25,7 @@ public class Program
         builder.Services.Configure<ContributionsOptions>(builder.Configuration.GetSection("Contributions"));
 
         // Register cache service as singleton for shared caching across requests
-        builder.Services.AddSingleton<IAzureDevOpsCacheManager, AzureDevOpsCacheManager>();
+        builder.Services.AddSingleton<ICacheManager, CacheManager>();
 
         // Register repository as scoped now that it uses singleton cache service
         builder.Services.AddScoped<IAzureDevOpsRepository, AzureDevOpsRepository>();
@@ -96,9 +97,6 @@ public class Program
             };
         });
 
-        // Add response caching
-        builder.Services.AddResponseCaching();
-
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -113,7 +111,6 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseRateLimiter();
-        app.UseResponseCaching();
         app.UseCors(builder =>
         {
             builder.WithOrigins("http://localhost:9002", "https://c-m-app.azurewebsites.net")

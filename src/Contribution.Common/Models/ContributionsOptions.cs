@@ -6,6 +6,7 @@ public class ContributionsOptions
     public int ProjectsCacheMinutes { get; set; } = 15;
     public int IdentityCacheMinutes { get; set; } = 60;
     public int RepoCacheMinutes { get; set; } = 15;
+    public int ContributionsCacheMinutes { get; set; } = 30;
     public int DefaultTop { get; set; } = 2000;
     public int DefaultSkip { get; set; } = 0;
 }

@@ -1,4 +1,6 @@
 using Contribution.Common.Auth;
+using Contribution.Common.Managers;
+using Contribution.Common.Models;
 using Contribution.GitHub.Managers;
 using Contribution.GitHub.Repository;
 using Microsoft.AspNetCore.Authentication;
@@ -14,7 +16,12 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddControllers();
+        builder.Services.AddMemoryCache();
         builder.Services.AddHttpClient();
+        builder.Services.Configure<ContributionsOptions>(builder.Configuration.GetSection("Contributions"));
+
+        // Register cache service as singleton for shared caching across requests
+        builder.Services.AddSingleton<ICacheManager, CacheManager>();
 
         builder.Services.AddScoped<IGitHubRepository, GitHubRepository>();
         builder.Services.AddScoped<IGitHubContributionsManager, GitHubContributionsManager>();
@@ -61,9 +68,6 @@ public class Program
             };
         });
 
-        // Add response caching
-        builder.Services.AddResponseCaching();
-
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
@@ -77,7 +81,6 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseRateLimiter();
-        app.UseResponseCaching();
         app.UseCors(builder =>
         {
             builder.WithOrigins("http://localhost:9002", "https://c-m-app.azurewebsites.net")

@@ -167,9 +167,9 @@ public class ContributionAggregatorManager(
             mergedResponse.Meta.ScannedRepos += data.Meta?.ScannedRepos ?? 0;
             mergedResponse.Meta.ElapsedMs += data.Meta?.ElapsedMs ?? 0;
             
-            if (data.Meta?.CachedProjects == true)
+            if (data.Meta?.CacheHit == true)
             {
-                mergedResponse.Meta.CachedProjects = true;
+                mergedResponse.Meta.CacheHit = true;
             }
 
             if (data.Meta?.Errors != null)

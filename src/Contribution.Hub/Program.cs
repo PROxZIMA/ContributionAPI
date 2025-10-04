@@ -38,9 +38,6 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
-// Add response caching
-builder.Services.AddResponseCaching();
-
 // Add logging
 builder.Services.AddLogging();
 
@@ -59,7 +56,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRateLimiter();
-app.UseResponseCaching();
 app.UseCors(builder =>
 {
     builder.WithOrigins("http://localhost:9002", "https://c-m-app.azurewebsites.net")

@@ -1,6 +1,6 @@
 using Contribution.Common.Models;
+using Contribution.Common.Managers;
 using Contribution.AzureDevOps.Factory;
-using Contribution.AzureDevOps.Managers;
 using Contribution.AzureDevOps.Models;
 using System.Net.Http.Headers;
 using System.Text;
@@ -13,13 +13,13 @@ using Newtonsoft.Json;
 namespace Contribution.AzureDevOps.Repository;
 
 public sealed class AzureDevOpsRepository(
-    IAzureDevOpsCacheManager cacheManager,
+    ICacheManager cacheManager,
     IHttpClientFactory httpClientFactory,
     IAzureClientFactory azureClientFactory,
     IOptions<ContributionsOptions> options,
     ILogger<AzureDevOpsRepository> logger) : IAzureDevOpsRepository
 {
-    private readonly IAzureDevOpsCacheManager _cacheManager = cacheManager;
+    private readonly ICacheManager _cacheManager = cacheManager;
     private readonly HttpClient _client = httpClientFactory.CreateClient("azuredevops-rest");
     private readonly IAzureClientFactory _azureClientFactory = azureClientFactory;
     private readonly IOptions<ContributionsOptions> _options = options;

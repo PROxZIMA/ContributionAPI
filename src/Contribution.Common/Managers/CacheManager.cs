@@ -1,9 +1,10 @@
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.ObjectModel;
+using Contribution.Common.Models;
 
-namespace Contribution.AzureDevOps.Managers;
+namespace Contribution.Common.Managers;
 
-public sealed class AzureDevOpsCacheManager(IMemoryCache cache) : IAzureDevOpsCacheManager
+public sealed class CacheManager(IMemoryCache cache) : ICacheManager
 {
     private readonly IMemoryCache _cache = cache;
 
@@ -19,6 +20,20 @@ public sealed class AzureDevOpsCacheManager(IMemoryCache cache) : IAzureDevOpsCa
         }
 
         return result;
+    }
+
+    public async Task<CacheResult<T>> GetOrSetWithStatusAsync<T>(string key, Func<Task<T?>> factory, TimeSpan expiration) where T : class
+    {
+        if (_cache.TryGetValue<T>(key, out var cached))
+            return new CacheResult<T>(cached, true); // Cache hit
+
+        var result = await factory();
+        if (result != null)
+        {
+            _cache.Set(key, result, expiration);
+        }
+
+        return new CacheResult<T>(result, false); // Cache miss
     }
 
     public async Task<IReadOnlyCollection<T>> GetOrSetCollectionAsync<T>(string key, Func<Task<IEnumerable<T>>> factory, TimeSpan expiration)

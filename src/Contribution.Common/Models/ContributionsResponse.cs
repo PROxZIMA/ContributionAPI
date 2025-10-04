@@ -16,6 +16,6 @@ public class MetaInfo
     public int ScannedProjects { get; set; }
     public int ScannedRepos { get; set; }
     public long ElapsedMs { get; set; }
-    public bool CachedProjects { get; set; }
+    public bool CacheHit { get; set; }
     public List<string> Errors { get; set; } = [];
 }
