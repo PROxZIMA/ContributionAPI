@@ -3,6 +3,7 @@ namespace Contribution.Common.Constants;
 public static class SystemConstants
 {
     public const string DateFormat = "yyyy-MM-dd";
+    public const string UTCDateTimeFormat = "M/d/yyyy 00:00:00Z";
 }
 
 public static class ContributionTypes

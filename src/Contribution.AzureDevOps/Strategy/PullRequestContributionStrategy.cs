@@ -17,10 +17,10 @@ public sealed class PullRequestContributionStrategy(
     IOptions<ContributionsOptions> options,
     ILogger<PullRequestContributionStrategy> logger) : IContributionStrategy
 {
-    private readonly IAzureDevOpsRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-    private readonly IAzureClientFactory _azureClientFactory = azureClientFactory ?? throw new ArgumentNullException(nameof(azureClientFactory));
-    private readonly IOptions<ContributionsOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
-    private readonly ILogger<PullRequestContributionStrategy> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IAzureDevOpsRepository _repository = repository;
+    private readonly IAzureClientFactory _azureClientFactory = azureClientFactory;
+    private readonly IOptions<ContributionsOptions> _options = options;
+    private readonly ILogger<PullRequestContributionStrategy> _logger = logger;
 
     public async Task<IReadOnlyDictionary<string, Common.Models.Contribution>> GetContributionsAsync(
         Identity userIdentity,

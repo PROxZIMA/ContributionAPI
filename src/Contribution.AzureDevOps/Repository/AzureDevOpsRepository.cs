@@ -19,24 +19,24 @@ public sealed class AzureDevOpsRepository(
     IOptions<ContributionsOptions> options,
     ILogger<AzureDevOpsRepository> logger) : IAzureDevOpsRepository
 {
-    private readonly IAzureDevOpsCacheManager _cacheManager = cacheManager ?? throw new ArgumentNullException(nameof(cacheManager));
-    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-    private readonly IAzureClientFactory _azureClientFactory = azureClientFactory ?? throw new ArgumentNullException(nameof(azureClientFactory));
-    private readonly IOptions<ContributionsOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
-    private readonly ILogger<AzureDevOpsRepository> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IAzureDevOpsCacheManager _cacheManager = cacheManager;
+    private readonly HttpClient _client = httpClientFactory.CreateClient("azuredevops-rest");
+    private readonly IAzureClientFactory _azureClientFactory = azureClientFactory;
+    private readonly IOptions<ContributionsOptions> _options = options;
+    private readonly ILogger<AzureDevOpsRepository> _logger = logger;
 
     public async Task<Identity?> GetIdentityAsync(string organization, string email, string pat)
     {
         var cacheKey = $"identity:{organization}:{email}";
         return await _cacheManager.GetOrSetAsync(cacheKey, async () =>
         {
-            var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get,
+                $"https://vssps.dev.azure.com/{organization}/_apis/identities?searchFilter=MailAddress&filterValue={Uri.EscapeDataString(email)}&api-version=7.1");
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic",
                 Convert.ToBase64String(Encoding.ASCII.GetBytes($":{pat}")));
 
-            var url = $"https://vssps.dev.azure.com/{organization}/_apis/identities?searchFilter=MailAddress&filterValue={Uri.EscapeDataString(email)}&api-version=7.1";
-            var response = await client.GetAsync(url);
-            
+            var response = await _client.SendAsync(httpRequestMessage);
+
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Identity lookup failed for {email} with {code}", email, response.StatusCode);
@@ -54,7 +54,7 @@ public sealed class AzureDevOpsRepository(
                     return identity;
                 }
             }
-            
+
             return null;
         }, TimeSpan.FromMinutes(_options.Value.IdentityCacheMinutes));
     }

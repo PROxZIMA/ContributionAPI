@@ -5,7 +5,7 @@ namespace Contribution.AzureDevOps.Managers;
 
 public sealed class AzureDevOpsCacheManager(IMemoryCache cache) : IAzureDevOpsCacheManager
 {
-    private readonly IMemoryCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+    private readonly IMemoryCache _cache = cache;
 
     public async Task<T?> GetOrSetAsync<T>(string key, Func<Task<T?>> factory, TimeSpan expiration) where T : class
     {

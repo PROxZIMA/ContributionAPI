@@ -8,6 +8,7 @@ using Contribution.Common.Constants;
 using Contribution.Common.Attributes;
 using Contribution.AzureDevOps.Repository;
 using Contribution.AzureDevOps.Factory;
+using System.Globalization;
 
 namespace Contribution.AzureDevOps.Strategy;
 
@@ -18,10 +19,10 @@ public sealed class WorkItemContributionStrategy(
     IOptions<ContributionsOptions> options,
     ILogger<WorkItemContributionStrategy> logger) : IContributionStrategy
 {
-    private readonly IAzureDevOpsRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-    private readonly IAzureClientFactory _azureClientFactory = azureClientFactory ?? throw new ArgumentNullException(nameof(azureClientFactory));
-    private readonly IOptions<ContributionsOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
-    private readonly ILogger<WorkItemContributionStrategy> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IAzureDevOpsRepository _repository = repository;
+    private readonly IAzureClientFactory _azureClientFactory = azureClientFactory;
+    private readonly IOptions<ContributionsOptions> _options = options;
+    private readonly ILogger<WorkItemContributionStrategy> _logger = logger;
 
     public async Task<IReadOnlyDictionary<string, Common.Models.Contribution>> GetContributionsAsync(
         Identity userIdentity,
@@ -33,7 +34,7 @@ public sealed class WorkItemContributionStrategy(
         var contributions = new Dictionary<string, int>();
         var projects = await _repository.GetProjectsAsync(organization, pat);
         var workItemClient = await _azureClientFactory.GetWorkItemClient(organization, pat);
-        
+
         var throttler = new SemaphoreSlim(_options.Value.MaxConcurrency);
         var tasks = new List<Task>();
 
@@ -80,74 +81,113 @@ public sealed class WorkItemContributionStrategy(
         Dictionary<string, int> contributions)
     {
         var userEmail = userIdentity.Properties["Account"]?.ToString() ?? string.Empty;
-        
+        var userId = userIdentity.Id.ToString();
+        var fromDate_ = fromDate.ToString(SystemConstants.UTCDateTimeFormat, CultureInfo.InvariantCulture);
+        var toDate_ = toDate.ToString(SystemConstants.UTCDateTimeFormat, CultureInfo.InvariantCulture);
+
         // WIQL query to find work items created or modified by the user
         var wiql = new Wiql
         {
             Query = $@"
-                SELECT [System.Id], [System.CreatedDate], [System.ChangedDate] 
+                SELECT [System.Id] 
                 FROM WorkItems 
-                WHERE ([System.CreatedBy] = '{userEmail}' OR [System.ChangedBy] = '{userEmail}') 
-                AND [System.ChangedDate] >= '{fromDate:yyyy-MM-dd}' 
-                AND [System.ChangedDate] <= '{toDate:yyyy-MM-dd}'
+                WHERE (
+                    ([System.CreatedBy] = '{userEmail}' AND [System.CreatedDate] >= '{fromDate_}' AND [System.CreatedDate] <= '{toDate_}')
+                    OR 
+                    ([System.ChangedBy] = '{userEmail}' AND [System.ChangedDate] >= '{fromDate_}' AND [System.ChangedDate] <= '{toDate_}')
+                )
                 ORDER BY [System.ChangedDate] DESC"
         };
 
         var queryResult = await workItemClient.QueryByWiqlAsync(wiql, projectId);
-        
-        if (queryResult?.WorkItems == null || !queryResult.WorkItems.Any()) 
+
+        if (queryResult?.WorkItems == null || !queryResult.WorkItems.Any())
             return;
 
         // Get work item details in batches
-        var workItemIds = queryResult.WorkItems.Select(wi => wi.Id).ToArray();
-        const int batchSize = 200; // Azure DevOps API limit
-        
-        for (int i = 0; i < workItemIds.Length; i += batchSize)
+        var workItemIds = queryResult.WorkItems.Select(wi => wi.Id).Distinct().ToArray();
+        const int batchSize = 200;
+
+        var requiredFields = new[] { "System.CreatedDate", "System.ChangedDate", "System.CreatedBy", "System.ChangedBy" };
+
+        foreach (var batch in workItemIds.Chunk(batchSize))
         {
-            var batch = workItemIds.Skip(i).Take(batchSize).ToArray();
-            var workItems = await workItemClient.GetWorkItemsAsync(
-                batch, 
-                fields: ["System.CreatedDate", "System.ChangedDate", "System.CreatedBy", "System.ChangedBy"]);
+            var workItems = await workItemClient.GetWorkItemsAsync(batch, fields: requiredFields);
 
             foreach (var workItem in workItems)
             {
-                // Count work item creation
-                if (workItem.Fields.TryGetValue("System.CreatedDate", out var createdDateValue) &&
-                    workItem.Fields.TryGetValue("System.CreatedBy", out var createdByValue) &&
-                    DateTime.TryParse(createdDateValue?.ToString(), out var createdDate) &&
-                    createdByValue?.ToString()?.Contains(userEmail, StringComparison.OrdinalIgnoreCase) == true &&
-                    createdDate >= fromDate && createdDate <= toDate)
-                {
-                    var dateKey = createdDate.ToString(SystemConstants.DateFormat);
-                    lock (contributions)
-                    {
-                        contributions[dateKey] = contributions.TryGetValue(dateKey, out var value) ? value + 1 : 1;
-                    }
-                }
-
-                // Count work item updates (only if not the same day as creation)
-                if (workItem.Fields.TryGetValue("System.ChangedDate", out var changedDateValue) &&
-                    workItem.Fields.TryGetValue("System.ChangedBy", out var changedByValue) &&
-                    DateTime.TryParse(changedDateValue?.ToString(), out var changedDate) &&
-                    changedByValue?.ToString()?.Contains(userEmail, StringComparison.OrdinalIgnoreCase) == true &&
-                    changedDate >= fromDate && changedDate <= toDate)
-                {
-                    var changedDateKey = changedDate.ToString(SystemConstants.DateFormat);
-                    var createdDateKey = workItem.Fields.TryGetValue("System.CreatedDate", out var createdVal) &&
-                                       DateTime.TryParse(createdVal?.ToString(), out var created) 
-                                       ? created.ToString(SystemConstants.DateFormat) 
-                                       : string.Empty;
-
-                    // Only count if it's a different day than creation to avoid double counting
-                    if (changedDateKey != createdDateKey)
-                    {
-                        lock (contributions)
-                        {
-                            contributions[changedDateKey] = contributions.TryGetValue(changedDateKey, out var value) ? value + 1 : 1;
-                        }
-                    }
-                }
+                ProcessWorkItemContributions(workItem, userId, fromDate, toDate, contributions);
             }
+        }
+    }
+
+    private static void ProcessWorkItemContributions(
+        WorkItem workItem,
+        string userId,
+        DateTime fromDate,
+        DateTime toDate,
+        Dictionary<string, int> contributions)
+    {
+        var createdDate = GetDateFromField(workItem, "System.CreatedDate");
+        var changedDate = GetDateFromField(workItem, "System.ChangedDate");
+        var createdBy = GetIdentityFromField(workItem, "System.CreatedBy");
+        var changedBy = GetIdentityFromField(workItem, "System.ChangedBy");
+
+        // Process creation contribution
+        if (createdDate.HasValue && 
+            IsWithinDateRange(createdDate.Value, fromDate, toDate) &&
+            IsUserMatch(createdBy, userId))
+        {
+            var dateKey = createdDate.Value.ToString(SystemConstants.DateFormat);
+            IncrementContribution(contributions, dateKey);
+        }
+
+        // Process change contribution (avoid double counting same-day creation/change)
+        if (changedDate.HasValue && 
+            IsWithinDateRange(changedDate.Value, fromDate, toDate) &&
+            IsUserMatch(changedBy, userId) &&
+            !IsSameDayAsCreation(createdDate, changedDate.Value))
+        {
+            var dateKey = changedDate.Value.ToString(SystemConstants.DateFormat);
+            IncrementContribution(contributions, dateKey);
+        }
+    }
+
+    private static DateTime? GetDateFromField(WorkItem workItem, string fieldName)
+    {
+        return workItem.Fields.TryGetValue(fieldName, out var value) && value is DateTime dateValue 
+            ? dateValue 
+            : null;
+    }
+
+    private static string? GetIdentityFromField(WorkItem workItem, string fieldName)
+    {
+        return workItem.Fields.TryGetValue(fieldName, out var value) && value is Microsoft.VisualStudio.Services.WebApi.IdentityRef identityRef
+            ? identityRef.Id
+            : null;
+    }
+
+    private static bool IsWithinDateRange(DateTime date, DateTime fromDate, DateTime toDate) =>
+        date >= fromDate && date <= toDate;
+
+    private static bool IsUserMatch(string? fieldUserId, string targetUserId) =>
+        !string.IsNullOrEmpty(fieldUserId) && 
+        string.Equals(fieldUserId, targetUserId, StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsSameDayAsCreation(DateTime? createdDate, DateTime changedDate)
+    {
+        if (!createdDate.HasValue) return false;
+        
+        var createdDateKey = createdDate.Value.ToString(SystemConstants.DateFormat);
+        var changedDateKey = changedDate.ToString(SystemConstants.DateFormat);
+        return string.Equals(createdDateKey, changedDateKey, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void IncrementContribution(Dictionary<string, int> contributions, string dateKey)
+    {
+        lock (contributions)
+        {
+            contributions[dateKey] = contributions.TryGetValue(dateKey, out var existingValue) ? existingValue + 1 : 1;
         }
     }
 }
