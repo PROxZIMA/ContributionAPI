@@ -1,7 +1,5 @@
-using Microsoft.Extensions.Options;
 using Contribution.Hub.Models;
 using Contribution.Hub.Services;
-using Contribution.Common.Models;
 using Contribution.Common.Constants;
 
 namespace Contribution.Hub.Factory;
@@ -12,7 +10,7 @@ public class ContributionProviderFactory : IContributionProviderFactory
     private readonly ILogger<ContributionProviderFactory> _logger;
 
     // Delegate for provider implementation functions
-    private delegate Task<ProviderContribution> ProviderImplementation(UserData userData,string token, int year, bool includeActivity, bool includeBreakdown);
+    private delegate Task<ProviderContribution> ProviderImplementation(UserData userData, int year, bool includeActivity, bool includeBreakdown);
     
     // Dictionary mapping provider names to their implementations
     private readonly Dictionary<string, ProviderImplementation> _providerImplementations;
@@ -50,12 +48,7 @@ public class ContributionProviderFactory : IContributionProviderFactory
             return CreateErrorResult(providerName, "Unknown provider");
         }
         
-        if (!userData.Tokens.TryGetValue(normalizedProviderName, out var token))
-        {
-            return CreateErrorResult(providerName, $"{providerName} token not found for user");
-        }
-        
-        return await implementation(userData, token, year, includeActivity, includeBreakdown);
+        return await implementation(userData, year, includeActivity, includeBreakdown);
     }
 
     private static ProviderContribution CreateProviderNotFoundError(string providerName)
@@ -65,7 +58,6 @@ public class ContributionProviderFactory : IContributionProviderFactory
 
     private async Task<ProviderContribution> GetAzureDevOpsContributionsAsync(
         UserData userData,
-        string token,
         int year,
         bool includeActivity,
         bool includeBreakdown)
@@ -87,7 +79,7 @@ public class ContributionProviderFactory : IContributionProviderFactory
                 userData.Azure.Email,
                 userData.Azure.Organization,
                 year,
-                token,
+                userData.Azure.Token,
                 includeBreakdown,
                 includeActivity);
 
@@ -106,7 +98,6 @@ public class ContributionProviderFactory : IContributionProviderFactory
 
     private async Task<ProviderContribution> GetGitHubContributionsAsync(
         UserData userData,
-        string token,
         int year,
         bool includeActivity,
         bool includeBreakdown)
@@ -127,7 +118,7 @@ public class ContributionProviderFactory : IContributionProviderFactory
             var contributionsResponse = await _serviceClient.GetGitHubContributionsAsync(
                 userData.GitHub.Username,
                 year,
-                token,
+                userData.GitHub.Token,
                 includeBreakdown,
                 includeActivity);
 

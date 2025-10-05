@@ -1,10 +1,7 @@
-using Microsoft.Extensions.Options;
 using Contribution.Hub.Models;
 using Contribution.Hub.Repository;
-using Contribution.Hub.Services;
 using Contribution.Hub.Factory;
 using Contribution.Common.Models;
-using Contribution.Common.Constants;
 
 namespace Contribution.Hub.Managers;
 
@@ -24,6 +21,18 @@ public class ContributionAggregatorManager(
         bool includeActivity = false, 
         bool includeBreakdown = false)
     {
+        // Get user data from Firestore
+        var userData = await _userDataRepository.GetUserDataAsync(userId, _providerFactory.SupportedProviders) ?? throw new ArgumentException($"User data not found for userId: {userId}");
+        return await GetAggregatedContributionsAsync(userData, year, providers, includeActivity, includeBreakdown);
+    }
+    
+    public async Task<ContributionsResponse> GetAggregatedContributionsAsync(
+        UserData userData,
+        int year,
+        string[]? providers = null,
+        bool includeActivity = false,
+        bool includeBreakdown = false)
+    {
         var mergedResponse = new ContributionsResponse
         {
             Total = [],
@@ -37,9 +46,6 @@ public class ContributionAggregatorManager(
 
         try
         {
-            // Get user data from Firestore
-            var userData = await _userDataRepository.GetUserDataAsync(userId) ?? throw new ArgumentException($"User data not found for userId: {userId}");
-
             // Use provided providers or default to all available providers
             var requestedProviders = providers?.Where(p => !string.IsNullOrWhiteSpace(p))
                                               .Select(p => p.ToLowerInvariant())
@@ -48,7 +54,7 @@ public class ContributionAggregatorManager(
 
             if (requestedProviders.Count == 0)
             {
-                _logger.LogWarning("No providers specified for user {UserId}", userId);
+                _logger.LogWarning("No providers specified for user {UserId}", userData.Id);
                 mergedResponse.Meta.Errors.Add("No providers specified");
                 return mergedResponse;
             }
@@ -66,7 +72,7 @@ public class ContributionAggregatorManager(
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to aggregate contributions for user {UserId}", userId);
+            _logger.LogError(ex, "Failed to aggregate contributions for user {UserId}", userData.Id);
             mergedResponse.Meta.Errors.Add($"Aggregation failed: {ex.Message}");
         }
 

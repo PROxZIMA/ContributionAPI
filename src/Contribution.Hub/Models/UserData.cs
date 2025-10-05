@@ -8,8 +8,6 @@ public class UserData
 {
     public string Id { get; set; } = string.Empty;
 
-    public Dictionary<string, string> Tokens { get; set; } = [];
-
     [FirestoreProperty(ProviderNames.Azure)]
     public AzureDevOpsUserData? Azure { get; set; }
 
@@ -25,6 +23,8 @@ public class AzureDevOpsUserData
 
     [FirestoreProperty("organization")]
     public string Organization { get; set; } = string.Empty;
+
+    public string Token { get; set; } = string.Empty;
 }
 
 [FirestoreData]
@@ -32,4 +32,6 @@ public class GitHubUserData
 {
     [FirestoreProperty("username")]
     public string Username { get; set; } = string.Empty;
+
+    public string Token { get; set; } = string.Empty;
 }

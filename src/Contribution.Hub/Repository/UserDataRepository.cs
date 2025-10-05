@@ -2,6 +2,7 @@ using Google.Cloud.Firestore;
 using Microsoft.Extensions.Options;
 using Contribution.Hub.Models;
 using Contribution.Hub.Services;
+using Contribution.Common.Constants;
 
 namespace Contribution.Hub.Repository;
 
@@ -28,7 +29,7 @@ public class UserDataRepository : IUserDataRepository
         }.Build();
     }
 
-    public async Task<UserData?> GetUserDataAsync(string userId)
+    public async Task<UserData?> GetUserDataAsync(string userId, List<string> supportedProviders)
     {
         try
         {
@@ -40,7 +41,25 @@ public class UserDataRepository : IUserDataRepository
 
             var userData = snapshot.ConvertTo<UserData>();
             userData.Id = snapshot.Id; // Ensure UserId is set from document ID
-            userData.Tokens = await GetUserTokensAsync(snapshot.Id);
+            var tokens = await GetUserTokensAsync(snapshot.Id);
+            foreach (var provider in supportedProviders)
+            {
+                var lowerProvider = provider.ToLowerInvariant();
+                if (tokens.TryGetValue(lowerProvider, out var token))
+                {
+                    switch (lowerProvider)
+                    {
+                        case ProviderNames.Azure:
+                            if (userData.Azure != null)
+                                userData.Azure.Token = token;
+                            break;
+                        case ProviderNames.GitHub:
+                            if (userData.GitHub != null)
+                                userData.GitHub.Token = token;
+                            break;
+                    }
+                }
+            }
             return userData;
         }
         catch (Exception ex)
@@ -49,7 +68,7 @@ public class UserDataRepository : IUserDataRepository
         }
     }
 
-    public async Task<Dictionary<string, string>> GetUserTokensAsync(string userId)
+    private async Task<Dictionary<string, string>> GetUserTokensAsync(string userId)
     {
         try
         {

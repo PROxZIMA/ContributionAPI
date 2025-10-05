@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Contribution.Hub.Managers;
+using Contribution.Hub.Models;
 
 namespace Contribution.Hub.Controllers;
 
@@ -13,7 +14,6 @@ public class ContributionsController(
     private readonly ILogger<ContributionsController> _logger = logger;
 
     [HttpGet]
-    [ResponseCache(Duration = 300)]
     public async Task<IActionResult> Get(
         [FromQuery] string userId,
         [FromQuery] int year,
@@ -36,10 +36,10 @@ public class ContributionsController(
             _logger.LogInformation("Fetching aggregated contributions for user {UserId}, year {Year}", userId, year);
 
             var result = await _aggregatorManager.GetAggregatedContributionsAsync(
-                userId, 
+                userId,
                 year,
                 providers,
-                includeActivity, 
+                includeActivity,
                 includeBreakdown);
 
             return Ok(result);
@@ -52,6 +52,49 @@ public class ContributionsController(
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to fetch aggregated contributions for user {UserId}", userId);
+            return StatusCode(500, "An error occurred while processing your request");
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Post(
+        [FromBody] UserData userData,
+        [FromQuery] int year,
+        [FromQuery] string[]? providers = null,
+        [FromQuery] bool includeActivity = false,
+        [FromQuery] bool includeBreakdown = false)
+    {
+        if (userData == null)
+        {
+            return BadRequest("Valid user data is required");
+        }
+
+        if (year < 1900 || year > 3000)
+        {
+            return BadRequest("year must be a valid yyyy");
+        }
+
+        try
+        {
+            _logger.LogInformation("Fetching aggregated contributions for user {UserId}, year {Year}", userData.Id, year);
+
+            var result = await _aggregatorManager.GetAggregatedContributionsAsync(
+                userData,
+                year,
+                providers,
+                includeActivity,
+                includeBreakdown);
+
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid request for user {UserId}", userData.Id);
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to fetch aggregated contributions for user {UserId}", userData.Id);
             return StatusCode(500, "An error occurred while processing your request");
         }
     }

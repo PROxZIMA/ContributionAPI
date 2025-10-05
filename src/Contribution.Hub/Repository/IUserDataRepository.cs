@@ -4,5 +4,5 @@ namespace Contribution.Hub.Repository;
 
 public interface IUserDataRepository
 {
-    Task<UserData?> GetUserDataAsync(string userId);
+    Task<UserData?> GetUserDataAsync(string userId, List<string> supportedProviders);
 }
