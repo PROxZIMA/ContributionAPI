@@ -41,6 +41,9 @@ builder.Services.AddRateLimiter(options =>
 // Add logging
 builder.Services.AddLogging();
 
+// Add health checks
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -64,5 +67,9 @@ app.UseCors(builder =>
 });
 
 app.MapControllers();
+
+// Map health check endpoints
+app.MapHealthChecks("/health");
+app.MapHealthChecks("/ready");
 
 app.Run();

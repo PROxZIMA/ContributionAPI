@@ -97,6 +97,9 @@ public class Program
             };
         });
 
+        // Add health checks
+        builder.Services.AddHealthChecks();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -124,6 +127,10 @@ public class Program
         app.UseAuthorization();
 
         app.MapControllers();
+
+        // Map health check endpoints
+        app.MapHealthChecks("/health");
+        app.MapHealthChecks("/ready");
 
         app.Run();
     }

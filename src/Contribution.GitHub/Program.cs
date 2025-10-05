@@ -68,6 +68,9 @@ public class Program
             };
         });
 
+        // Add health checks
+        builder.Services.AddHealthChecks();
+
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
@@ -91,6 +94,10 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
+
+        // Map health check endpoints
+        app.MapHealthChecks("/health");
+        app.MapHealthChecks("/ready");
         app.Run();
     }
 }
