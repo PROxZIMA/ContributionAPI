@@ -51,6 +51,10 @@
 
 ContributionAPI is a powerful microservices-based platform that aggregates developer contributions from multiple sources including GitHub, Azure DevOps, and other development platforms. It provides a unified API interface to retrieve comprehensive contribution data, enabling developers and organizations to get a holistic view of coding activity across different platforms.
 
+<div align="center">
+  <img src="https://c-hub-api.azurewebsites.net/contributions/svg?userId=6SqDR5hL6rSnVZwAycOX3BBFxjK2&year=2025&darkMode=true" alt="Contribution Activity">
+</div>
+
 ### Key Features
 
 - **Multi-Platform Aggregation**: Seamlessly combines contributions from GitHub, Azure DevOps, and more
