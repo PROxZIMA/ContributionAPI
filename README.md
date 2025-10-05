@@ -259,106 +259,7 @@ ContributionAPI uses read-only tokens for secure access to external services.
 
 ### API Endpoints
 
-#### GET /contributions
-
-Retrieve aggregated contributions for a user with data stored in Firebase Firestore.
-- Reference: [Contribution Hub Manager](https://github.com/PROxZIMA/ContributionManager) for setting up user data.
-
-**Parameters:**
-- `userId` (required): Firebase User identifier
-- `year` (required): Year for contributions (e.g., 2024)
-- `providers` (optional): Array of providers to include (`github`, `azure`)
-- `includeActivity` (optional): Include detailed activity data
-- `includeBreakdown` (optional): Include contribution type breakdown
-
-**Example Requests:**
-
-```bash
-# Get all contributions for 2024
-curl "http://localhost:5298/contributions?userId=user123&year=2024"
-
-# Get only GitHub contributions
-curl "http://localhost:5298/contributions?userId=user123&year=2024&providers=github"
-
-# Get detailed breakdown from multiple providers
-curl "http://localhost:5298/contributions?userId=user123&year=2024&providers=github&providers=azure&includeBreakdown=true"
-```
-
-**Example Response:**
-```json
-{
-  "total": {
-    "2025": 2545
-  },
-  "contributions": [
-    {
-      "date": "2025-01-01",
-      "count": 1,
-      "level": 1,
-      "activity": {
-        "all": 1
-      }
-    },
-    // ...
-    {
-      "date": "2025-12-31",
-      "count": 19,
-      "level": 4,
-      "activity": {
-        "workitems": 2,
-        "commits": 12,
-        "pullrequests": 1,
-        "all": 4
-      }
-    }
-  ],
-  "breakdown": {
-    "workitems": 1154,
-    "commits": 1148,
-    "pullrequests": 239,
-    "issues": 2,
-    "reviews": 0,
-    "restricted": 0
-  },
-  "meta": {
-    "scannedProjects": 2,
-    "scannedRepos": 101,
-    "elapsedMs": 7476,
-    "cacheHit": false,
-    "errors": [
-      "bitbucket: Unknown provider"
-    ]
-  }
-}
-```
-
-#### POST /contributions
-
-Retrieve contributions for users without prior data in Firebase Firestore by providing credentials in the request body.
-
-```bash
-curl -X POST "http://localhost:5298/contributions?year=2024&providers=github&providers=azure&includeBreakdown=true" \
-  -H "Content-Type: application/json" \
-  -d '{                                         \
-    "azure": {                                  \
-        "email": "pratik.pingale@emerson.com",  \
-        "organization": "EmersonPSS",           \
-        "token": "{{AZURE_DEVOPS_WORK_PAT}}"    \
-    },                                          \
-    "gitHub": {                                 \
-        "username": "PROxZIMA",                 \
-        "token": "{{GITHUB_PERSONAL_PAT}}"      \
-    }                                           \
-}'
-```
-
-#### GET /health
-
-Health check endpoint for monitoring.
-
-```bash
-curl http://localhost:5298/health
-```
+- Reference: [Contribution Hub Manager](https://c-m-app.azurewebsites.net/home#endpoint) for existing endpoints and usage.
 
 For detailed API documentation, visit the Swagger UI at `http://localhost:5298/swagger` when running locally.
 
@@ -386,10 +287,10 @@ For detailed API documentation, visit the Swagger UI at `http://localhost:5298/s
 - [ ] Advanced analytics and insights
 - [ ] GraphQL API support
 - [ ] Persistant caching strategies
-    - Redis
-    - Serve last cache
-    - Queue cache refresh per user per minute
-    - Environment based caching configuration
+    - [ ] Redis
+    - [ ] Serve last cache
+    - [ ] Queue cache refresh per user per minute
+    - [ ] Environment based caching configuration
 
 ### Version 2.0 (Q2 2026)
 - [ ] Real-time contribution streaming
@@ -413,30 +314,6 @@ See our [Issues](https://github.com/PROxZIMA/ContributionAPI/issues) page to req
 
 We welcome contributions from the community! ContributionAPI is an open-source project, and we appreciate any help to make it better.
 
-### How to Contribute
-
-1. **Fork the Project**
-2. **Create your Feature Branch** (`git checkout -b feature/AmazingFeature`)
-3. **Commit your Changes** (`git commit -m 'Add some AmazingFeature'`)
-4. **Push to the Branch** (`git push origin feature/AmazingFeature`)
-5. **Open a Pull Request**
-
-### Development Guidelines
-
-- Follow the existing code style and conventions
-- Add unit tests for new functionality
-- Update documentation as needed
-- Ensure all tests pass before submitting PR
-- Use descriptive commit messages
-
-### Types of Contributions
-
-- **Bug Reports**: Report issues using our [bug report template](.github/ISSUE_TEMPLATE/bug_report.md)
-- **Feature Requests**: Suggest new features using our [feature request template](.github/ISSUE_TEMPLATE/feature_request.md)
-- **Documentation**: Help improve our documentation
-- **Code Contributions**: Submit bug fixes or new features
-- **Testing**: Help improve test coverage
-
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ### Code of Conduct
@@ -446,8 +323,6 @@ This project follows our [Code of Conduct](CODE_OF_CONDUCT.md). By participating
 ## License
 
 Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contact
 
@@ -463,6 +338,8 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 - **Discussions**: Use [GitHub Discussions](https://github.com/PROxZIMA/ContributionAPI/discussions) for community support
 - **Bug Reports**: Use our [issue templates](.github/ISSUE_TEMPLATE/) for bug reports
 - **Feature Requests**: Submit feature requests through GitHub Issues
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ---
 

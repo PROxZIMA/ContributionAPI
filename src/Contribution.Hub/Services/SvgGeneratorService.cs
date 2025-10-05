@@ -85,6 +85,8 @@ public class SvgGeneratorService : ISvgGeneratorService
             ? "rgba(255, 255, 255, 0.04)"
             : "rgba(0, 0, 0, 0.08)";
 
+        var textColor = darkMode ? "#ffffff" : "#000000";
+
         var animationStyles = showLoadingAnimation ? $@"
     @keyframes fadeIn {{
         from {{
@@ -103,7 +105,7 @@ public class SvgGeneratorService : ISvgGeneratorService
     .{Namespace} text {{
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         font-size: {fontSize}px;
-        fill: currentColor;
+        fill: {textColor};
     }}
     .{Namespace} rect {{
         stroke: {strokeColor};
