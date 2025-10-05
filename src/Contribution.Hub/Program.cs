@@ -24,6 +24,7 @@ builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 builder.Services.AddScoped<ISecretManagerService, SecretManagerService>();
 builder.Services.AddScoped<IContributionProviderFactory, ContributionProviderFactory>();
 builder.Services.AddScoped<IContributionAggregatorManager, ContributionAggregatorManager>();
+builder.Services.AddScoped<ISvgGeneratorService, SvgGeneratorService>();
 
 // Register HTTP client for external service calls
 builder.Services.AddHttpClient<IContributionServiceClient, ContributionServiceClient>();
