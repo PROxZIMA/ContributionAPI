@@ -1,0 +1,48 @@
+# Dockerfile for AzureDevOps Contribution API
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Copy common project first
+COPY ["src/Contribution.Common/Contribution.Common.csproj", "src/Contribution.Common/"]
+
+# Copy AzureDevOps API project
+COPY ["src/Contribution.AzureDevOps/Contribution.AzureDevOps.csproj", "src/Contribution.AzureDevOps/"]
+
+# Restore dependencies
+RUN dotnet restore "src/Contribution.AzureDevOps/Contribution.AzureDevOps.csproj"
+
+# Copy source files
+COPY ["src/Contribution.Common/", "src/Contribution.Common/"]
+COPY ["src/Contribution.AzureDevOps/", "src/Contribution.AzureDevOps/"]
+
+# Build and publish
+WORKDIR "/src/src/Contribution.AzureDevOps"
+RUN dotnet publish "Contribution.AzureDevOps.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+
+# Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Copy published files
+COPY --from=build /app/publish .
+
+# Set ownership
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Configure ASP.NET Core
+ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
+
+EXPOSE 5000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:5000/health || exit 1
+
+ENTRYPOINT ["dotnet", "Contribution.AzureDevOps.dll"]

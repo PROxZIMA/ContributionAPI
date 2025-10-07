@@ -283,13 +283,13 @@ For detailed API documentation, visit the Swagger UI at `http://localhost:5298/s
 - [x] Support SVG endpoint for contribution graphs
 - [ ] Support PNG endpoint for contribution graphs
 - [ ] Add provider specific breakdown
+- [ ] Set up CI/CD via GitHub Actions to VPS using Docker for hosting
 
 ### Version 1.2 (Q1 2026)
-- [ ] Set up CI/CD via GitHub Actions (Coolify) to VPS for hosting
 - [ ] GitLab integration
 - [ ] Bitbucket integration
 - [ ] Advanced analytics and insights
-- [ ] GraphQL API support
+- [ ] GraphQL API support (optional)
 - [ ] Persistant caching strategies
     - [ ] Redis
     - [ ] Serve last cache

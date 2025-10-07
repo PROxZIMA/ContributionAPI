@@ -1,0 +1,136 @@
+# cloud-init.yaml
+# For Ubuntu 24.04 aarch64 - minimal, runs at first boot
+users:
+  - name: deploy
+    gecos: "Deploy User"
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC2RKIVsWPoImlIEZHQ1H7NJn0s/0XmMeADBg/nN4yW0uPLAbG8VVElaDnSrhr+wEWh/FMwk/L1YdeCf8wx7HiMMn6v+XexJa9PZ7Ww3JjR+LSErjnJ7EJLEriRBQwpqKPkJ0qvHqu8XW+1d145PsosPaEdnaBbXHZ2EFkrVjJG1nGp9Juya8R4k3bJ7LbA/kUpWWaXP/dHScl78eumBoQegVugfYwl+RT30myax60l4qCW3ZxQfNSjPZOEIENMOFW5ChxgYhGbb+fRvH8DG8w2C274//uZcq3GDreXle39lorgPhvuPg0K+DvSv3ZMwGroj/Khb6sBP/3mA0Zkj0Ph ssh-key-2025-10-07"
+    lock_passwd: true
+
+package_update: true
+package_upgrade: true
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - ufw
+  - git
+
+runcmd:
+  - |
+    set -euo pipefail
+
+    # Install Docker official repo
+    mkdir -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    echo "deb [arch=arm64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+    apt-get update
+    apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+    # Add deploy to docker group
+    usermod -aG docker deploy
+
+    # Enable docker
+    systemctl enable --now docker
+
+    # Firewall: allow SSH, HTTP, HTTPS
+    ufw allow 22
+    ufw allow 80
+    ufw allow 443
+    ufw --force enable
+
+    # Create app dir and clone ContributionAPI repo (holds docker-compose.yml)
+    mkdir -p /srv/app
+    chown deploy:deploy /srv/app
+    cd /srv/app
+    # Clone the ContributionAPI repository
+    git clone https://github.com/PROxZIMA/ContributionAPI.git . || true
+    chown -R deploy:deploy /srv/app
+    
+    # Create secrets directory and set proper permissions
+    mkdir -p /srv/app/.secrets
+    chown deploy:deploy /srv/app/.secrets
+    chmod 700 /srv/app/.secrets
+
+    # Create GHCR login helper: reads /home/deploy/.ghcr_token if present
+    cat > /usr/local/bin/ghcr-login.sh <<'EOF'
+#!/bin/bash
+set -e
+TOKEN_FILE="/home/deploy/.ghcr_token"
+GOOGLE_CREDS_FILE="/home/deploy/.google_credentials_b64"
+
+# Login to GHCR if token exists
+if [ -f "$TOKEN_FILE" ]; then
+  GHCR_TOKEN=$(cat "$TOKEN_FILE")
+  echo "$GHCR_TOKEN" | docker login ghcr.io -u deploy --password-stdin || true
+  echo "Successfully logged into GHCR"
+fi
+
+# Setup Google credentials if they exist
+if [ -f "$GOOGLE_CREDS_FILE" ]; then
+  echo "Setting up Google Application Credentials..."
+  cat "$GOOGLE_CREDS_FILE" | base64 --decode > /srv/app/.secrets/google-credentials.json
+  chown deploy:deploy /srv/app/.secrets/google-credentials.json
+  chmod 600 /srv/app/.secrets/google-credentials.json
+  echo "Google credentials configured successfully"
+fi
+EOF
+    chmod +x /usr/local/bin/ghcr-login.sh
+    chown root:root /usr/local/bin/ghcr-login.sh
+
+    # Create systemd service for ContributionAPI docker-compose managed app
+    cat > /etc/systemd/system/contribution-api.service <<'EOF'
+[Unit]
+Description=ContributionAPI Docker Compose Services
+Requires=docker.service
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=deploy
+Group=deploy
+WorkingDirectory=/srv/app
+ExecStartPre=/usr/local/bin/ghcr-login.sh
+ExecStartPre=/usr/bin/git pull origin master
+ExecStart=/usr/bin/docker compose pull
+ExecStartPost=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose down
+ExecReload=/usr/bin/docker compose pull
+ExecReload=/usr/bin/docker compose up -d
+TimeoutStartSec=300
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    # Create log directory for Caddy
+    mkdir -p /var/log/caddy
+    chown deploy:deploy /var/log/caddy
+
+    # Create update script for manual deployment updates
+    cat > /usr/local/bin/update-contribution-api.sh <<'EOF'
+#!/bin/bash
+set -e
+echo "Updating ContributionAPI deployment..."
+cd /srv/app
+git pull origin master
+/usr/local/bin/ghcr-login.sh
+docker compose pull
+docker compose up -d
+docker image prune -f
+echo "ContributionAPI updated successfully!"
+EOF
+    chmod +x /usr/local/bin/update-contribution-api.sh
+    chown root:root /usr/local/bin/update-contribution-api.sh
+
+    systemctl daemon-reload
+    systemctl enable --now contribution-api.service
+
+final_message: "Cloud-init complete: ContributionAPI deployed with docker-compose, systemd service, and update script at /srv/app."

@@ -6,6 +6,9 @@ temp/
 contribution-manager.json
 gha-creds-*.json
 
+# Secrets and credentials
+.secrets/
+
 # Build results
 [Dd]ebug/
 [Rr]elease/
