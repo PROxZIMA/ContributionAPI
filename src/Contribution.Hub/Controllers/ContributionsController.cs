@@ -169,6 +169,12 @@ public class ContributionsController(
 
             // Generate SVG
             var svg = _svgGeneratorService.GenerateActivityCalendarSvg(contributionsResponse.Contributions, svgOptions);
+            
+            // Set cache control headers to prevent caching
+            Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+            Response.Headers.Append("Pragma", "no-cache");
+            Response.Headers.Append("Expires", "0");
+            
             return Content(svg, "image/svg+xml");
         }
         catch (ArgumentException ex)
@@ -250,6 +256,12 @@ public class ContributionsController(
 
             // Generate SVG
             var svg = _svgGeneratorService.GenerateActivityCalendarSvg(contributionsResponse.Contributions, svgOptions);
+            
+            // Set cache control headers to prevent caching
+            Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+            Response.Headers.Append("Pragma", "no-cache");
+            Response.Headers.Append("Expires", "0");
+            
             return Content(svg, "image/svg+xml");
         }
         catch (ArgumentException ex)

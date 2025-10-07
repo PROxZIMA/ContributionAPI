@@ -1,13 +1,13 @@
 name: GitHub Contribution API - VPS
 
-on:
-  push:
-    branches: [ master, main ]
-    paths:
-      - 'src/Contribution.Common/**'
-      - 'src/Contribution.GitHub/**'
-      - 'deploy/Dockerfile.c-gh-api'
-      - '.github/workflows/Contribution.GitHub.VPS.yaml'
+# on:
+#   push:
+#     branches: [ master, main ]
+#     paths:
+#       - 'src/Contribution.Common/**'
+#       - 'src/Contribution.GitHub/**'
+#       - 'deploy/Dockerfile.c-gh-api'
+#       - '.github/workflows/Contribution.GitHub.VPS.yaml'
 
 env:
   SERVICE_NAME: backend-github
