@@ -3,7 +3,7 @@
 *.user
 *.sln.docstates
 temp/
-contribution-manager.json
+.secrets/
 gha-creds-*.json
 
 # Secrets and credentials

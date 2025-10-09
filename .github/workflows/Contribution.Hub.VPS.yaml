@@ -2,13 +2,13 @@ name: Hub Contribution API - VPS
 
 on:
   workflow_dispatch:
-#   push:
-#     branches: [ master, main ]
-#     paths:
-#       - 'src/Contribution.Common/**'
-#       - 'src/Contribution.Hub/**'
-#       - 'deploy/Dockerfile.c-hub-api'
-#       - '.github/workflows/Contribution.Hub.VPS.yaml'
+  push:
+    branches: [ master, main ]
+    paths:
+      - 'src/Contribution.Common/**'
+      - 'src/Contribution.Hub/**'
+      - 'deploy/Dockerfile.c-hub-api'
+      - '.github/workflows/Contribution.Hub.VPS.yaml'
 
 env:
   SERVICE_NAME: backend-hub

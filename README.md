@@ -283,7 +283,7 @@ For detailed API documentation, visit the Swagger UI at `http://localhost:5298/s
 - [x] Support SVG endpoint for contribution graphs
 - [ ] Support PNG endpoint for contribution graphs
 - [ ] Add provider specific breakdown
-- [ ] Set up CI/CD via GitHub Actions to VPS using Docker for hosting
+- [x] Set up CI/CD via GitHub Actions to VPS using Docker for hosting
 
 ### Version 1.2 (Q1 2026)
 - [ ] GitLab integration

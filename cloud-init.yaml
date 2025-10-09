@@ -5,6 +5,7 @@ users:
     gecos: "Deploy User"
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
+    # !!!!! REPLACE THE BELOW SSH KEY WITH YOUR OWN !!!!!
     ssh_authorized_keys:
       - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC2RKIVsWPoImlIEZHQ1H7NJn0s/0XmMeADBg/nN4yW0uPLAbG8VVElaDnSrhr+wEWh/FMwk/L1YdeCf8wx7HiMMn6v+XexJa9PZ7Ww3JjR+LSErjnJ7EJLEriRBQwpqKPkJ0qvHqu8XW+1d145PsosPaEdnaBbXHZ2EFkrVjJG1nGp9Juya8R4k3bJ7LbA/kUpWWaXP/dHScl78eumBoQegVugfYwl+RT30myax60l4qCW3ZxQfNSjPZOEIENMOFW5ChxgYhGbb+fRvH8DG8w2C274//uZcq3GDreXle39lorgPhvuPg0K+DvSv3ZMwGroj/Khb6sBP/3mA0Zkj0Ph ssh-key-2025-10-07"
     lock_passwd: true

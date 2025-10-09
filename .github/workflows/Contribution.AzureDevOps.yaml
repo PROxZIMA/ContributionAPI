@@ -1,12 +1,13 @@
 name: AzureDevOps Contribution API
 
 on:
-  push:
-    branches: [ master, main ]
-    paths:
-      - 'src/Contribution.Common/**'
-      - 'src/Contribution.AzureDevOps/**'
-      - '.github/workflows/Contribution.AzureDevOps.yaml'
+  workflow_dispatch:
+  # push:
+  #   branches: [ master, main ]
+  #   paths:
+  #     - 'src/Contribution.Common/**'
+  #     - 'src/Contribution.AzureDevOps/**'
+  #     - '.github/workflows/Contribution.AzureDevOps.yaml'
   # # Not sure if needed as of now cuz build are pushed straight to Azure Web App Service
   # pull_request:
   #   branches: [ master, main ]

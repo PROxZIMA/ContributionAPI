@@ -13,7 +13,6 @@ public class SecretManagerService : ISecretManagerService
     {
         var hubOptions = options.Value;
         _projectId = hubOptions.Gcp.ProjectId;
-        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "contribution-manager.json");
         _client = SecretManagerServiceClient.Create();
     }
 

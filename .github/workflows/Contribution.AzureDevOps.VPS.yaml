@@ -2,13 +2,13 @@ name: AzureDevOps Contribution API - VPS
 
 on:
   workflow_dispatch:
-#   push:
-#     branches: [ master, main ]
-#     paths:
-#       - 'src/Contribution.Common/**'
-#       - 'src/Contribution.AzureDevOps/**'
-#       - 'deploy/Dockerfile.c-az-api'
-#       - '.github/workflows/Contribution.AzureDevOps.VPS.yaml'
+  push:
+    branches: [ master, main ]
+    paths:
+      - 'src/Contribution.Common/**'
+      - 'src/Contribution.AzureDevOps/**'
+      - 'deploy/Dockerfile.c-az-api'
+      - '.github/workflows/Contribution.AzureDevOps.VPS.yaml'
 
 env:
   SERVICE_NAME: backend-azuredevops

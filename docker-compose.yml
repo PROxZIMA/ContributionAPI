@@ -27,6 +27,7 @@ services:
       - PORT=3000
       - HOSTNAME=0.0.0.0
       - NEXT_TELEMETRY_DISABLED=1
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/.secrets/google-credentials.json
     volumes:
       - ./.secrets/google-credentials.json:/app/.secrets/google-credentials.json:ro
     expose:
