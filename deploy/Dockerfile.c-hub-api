@@ -31,8 +31,8 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 # Create non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Create directory for Google credentials
-RUN mkdir -p /app/.secrets && chown -R appuser:appuser /app/.secrets
+# Create directory for Google credentials with proper permissions
+RUN mkdir -p /app/.secrets && chmod 744 /app/.secrets
 
 # Copy published files
 COPY --from=build /app/publish .

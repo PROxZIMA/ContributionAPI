@@ -73,7 +73,7 @@ if [ -f "$GOOGLE_CREDS_FILE" ]; then
   echo "Setting up Google Application Credentials..."
   cat "$GOOGLE_CREDS_FILE" | base64 --decode > /srv/app/.secrets/google-credentials.json
   chown deploy:deploy /srv/app/.secrets/google-credentials.json
-  chmod 600 /srv/app/.secrets/google-credentials.json
+  chmod 644 /srv/app/.secrets/google-credentials.json  # Make readable by all users
   echo "Google credentials configured successfully"
 fi
 EOF
