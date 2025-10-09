@@ -116,7 +116,7 @@ public class Program
         app.UseRateLimiter();
         app.UseCors(builder =>
         {
-            builder.WithOrigins("http://localhost:9002", "https://c-m-app.azurewebsites.net")
+            builder.WithOrigins("http://localhost:9002", "https://chm.proxzima.dev")
                     .AllowAnyHeader()
                     .AllowAnyMethod();
         });

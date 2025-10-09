@@ -7,8 +7,8 @@ chm.proxzima.dev {
     }
 
     # Route GitHub API requests
-    route /_api/github/* {
-        uri strip_prefix /_api/github
+    route /_api/gh/* {
+        uri strip_prefix /_api/gh
         reverse_proxy backend-github:5000 {
             health_uri /health
             health_interval 30s
@@ -17,8 +17,8 @@ chm.proxzima.dev {
     }
 
     # Route Azure DevOps API requests  
-    route /_api/azuredevops/* {
-        uri strip_prefix /_api/azuredevops
+    route /_api/az/* {
+        uri strip_prefix /_api/az
         reverse_proxy backend-azuredevops:5000 {
             health_uri /health
             health_interval 30s

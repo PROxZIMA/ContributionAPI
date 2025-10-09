@@ -9,14 +9,14 @@
 
   <!-- Badges -->
   <p>
-    <a href="https://github.com/PROxZIMA/ContributionAPI/actions/workflows/Contribution.Hub.yaml">
-      <img src="https://github.com/PROxZIMA/ContributionAPI/actions/workflows/Contribution.Hub.yaml/badge.svg" alt="Hub Contribution API">
+    <a href="https://github.com/PROxZIMA/ContributionAPI/actions/workflows/Contribution.Hub.VPS.yaml">
+      <img src="https://github.com/PROxZIMA/ContributionAPI/actions/workflows/Contribution.Hub.VPS.yaml/badge.svg" alt="Hub Contribution API">
     </a>
-    <a href="https://github.com/PROxZIMA/ContributionAPI/actions/workflows/Contribution.AzureDevOps.yaml">
-      <img src="https://github.com/PROxZIMA/ContributionAPI/actions/workflows/Contribution.AzureDevOps.yaml/badge.svg" alt="AzureDevOps Contribution API">
+    <a href="https://github.com/PROxZIMA/ContributionAPI/actions/workflows/Contribution.AzureDevOps.VPS.yaml">
+      <img src="https://github.com/PROxZIMA/ContributionAPI/actions/workflows/Contribution.AzureDevOps.VPS.yaml/badge.svg" alt="AzureDevOps Contribution API">
     </a>
-    <a href="https://github.com/PROxZIMA/ContributionAPI/actions/workflows/Contribution.GitHub.yaml">
-      <img src="https://github.com/PROxZIMA/ContributionAPI/actions/workflows/Contribution.GitHub.yaml/badge.svg" alt="GitHub Contribution API">
+    <a href="https://github.com/PROxZIMA/ContributionAPI/actions/workflows/Contribution.GitHub.VPS.yaml">
+      <img src="https://github.com/PROxZIMA/ContributionAPI/actions/workflows/Contribution.GitHub.VPS.yaml/badge.svg" alt="GitHub Contribution API">
     </a>
     <a href="LICENSE">
       <img src="https://img.shields.io/github/license/PROxZIMA/ContributionAPI" alt="License">
@@ -52,7 +52,7 @@
 ContributionAPI is a powerful microservices-based platform that aggregates developer contributions from multiple sources including GitHub, Azure DevOps, and other development platforms. It provides a unified API interface to retrieve comprehensive contribution data, enabling developers and organizations to get a holistic view of coding activity across different platforms.
 
 <div align="center">
-  <img src="https://c-hub-api.azurewebsites.net/contributions/svg?userId=6SqDR5hL6rSnVZwAycOX3BBFxjK2&year=2025&darkMode=true&" alt="Contribution Activity">
+  <img src="https://chm.proxzima.dev/_api/contributions/svg?userId=6SqDR5hL6rSnVZwAycOX3BBFxjK2&year=2025&darkMode=true&" alt="Contribution Activity">
 </div>
 
 ### Key Features
@@ -263,7 +263,7 @@ ContributionAPI uses read-only tokens for secure access to external services.
 
 ### API Endpoints
 
-- Reference: [Contribution Hub Manager](https://c-m-app.azurewebsites.net/home#endpoint) for existing endpoints and usage.
+- Reference: [Contribution Hub Manager](https://chm.proxzima.dev/home#endpoint) for existing endpoints and usage.
 
 For detailed API documentation, visit the Swagger UI at `http://localhost:5298/swagger` when running locally.
 
