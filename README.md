@@ -85,80 +85,98 @@ ContributionAPI follows a microservices architecture pattern.
 
 ```mermaid
 ---
-title: Contribution Hub
+title: Contribution Hub - CI/CD & VPS Deployment Architecture
 ---
 
 graph TB
-    %% User Management & Token Management
-    A1[Contribution Hub Manager] -.-> J1[User Registration/Login]
-    J1 -.-> H[Firebase Firestore]
-    A1 -.-> J2[Token Management UI]
-    J2 -.-> H
-    J2 -.-> I[Google Secret Manager API]
+    %% CI/CD Pipeline
+    subgraph "CI/CD Pipeline - GitHub Actions"
+        GA[GitHub Actions] --> GB[Build Docker Images]
+        GB --> GC[Push to GHCR]
+        GC --> GD[SSH Deploy to VPS]
+    end
     
-    %% API Gateway & Main Service
-    A1 -.-> B2[Contribution.Hub API]
-    B2 --> C[Contribution Aggregator]
-    C --> D[Provider Factory]
+    %% CI/CD Flow
+    GD -.-> |Deploy via SSH| VPS
+    GC -.-> |Push Images| GHCR
+    GHCR -.-> |Pull Images| VPS
+    
+    %% Users & Domain
+    U[Users] --> CD[chm.proxzima.dev]
+    CD --> CR[Caddy Server]
+
+    %% VPS Deployment Infrastructure
+    subgraph "VPS Deployment / Caddy Reverse Proxy + TLS"
+        CR --> |"/_api/hub/* → backend-hub:5000"| B2
+        CR --> |"/ → frontend:3000"| FR
+        CR --> |"/_api/gh/* → backend-github:5000"| F
+        CR --> |"/_api/provider/* → backend-provider:5000"| G
+        subgraph "Docker Compose Services"
+
+            subgraph "Frontend Container"
+                FR[Frontend App<br/>contribution-manager-app]
+                FR -.-> |Token Management| J2[Token Management UI]
+                FR -.-> |User Management| J1[User Registration/Login]
+            end
+            
+            subgraph "Backend Containers"
+                B2[Contribution.Hub API<br/>backend-hub]
+                B2 --> C[Contribution Aggregator]
+                C --> D[Provider Factory]
+                E[Contribution.AzureDevOps API<br/>backend-azuredevops]
+                F[Contribution.GitHub API<br/>backend-github]
+                G[Contribution.Provider API<br/>backend-provider]
+            end
+        end
+
+        D --> E
+        D --> F
+        D --> G
+        CR --> |"/_api/az/* → backend-azuredevops:5000"| E
+    end
     
     %% Data Access
-    C --> H
     C --> I
+    C --> H
     
-    %% Provider Services
-    D --> E[Contribution.AzureDevOps API]
-    D --> F[Contribution.GitHub API]
-    D --> G[Contribution.Providers API]
+    %% Application Logic Flow
+    J2 -.-> I[Google Secret Manager]
+    J2 -.-> H
+    J1 -.-> H[Firebase Firestore]
     
-    E --> K2
-    F --> K1
-    G --> K3
-
-    %% Azure App Service Deployment
-    subgraph "Azure App Service Deployment"
-        subgraph "Frontend Services"
-            A1
-            J1
-            J2
-        end
-
-        subgraph "API Services"
-            B2
-            C
-            D
-        end
-        
-        subgraph "Microservices"
-            E
-            F
-            G
-        end
-    end
-
     %% External APIs
-    subgraph "External APIs"
-        K1[GitHub GraphQL API]
-        K2[Azure DevOps API SDK]
-        K3[Future APIs]
-        %% External Data Layer
+    E --> K2[Azure DevOps API SDK]
+    F --> K1[GitHub GraphQL API]
+    G --> K3[Future APIs]
+    
+    %% External Services
+    subgraph "External Services"
+        K1
+        K2
+        K3
         subgraph "Data & Security Layer"
             H
             I
         end
+        subgraph "Container Registry"
+            GHCR[GitHub Container Registry<br/>ghcr.io/proxzima/*]
+        end
     end
     
     %% Styling
-    classDef frontend fill:#e3f2fd,stroke:#b0bec5,color:#616161
-    classDef api fill:#ede7f6,stroke:#b0bec5,color:#616161
-    classDef microservice fill:#e8f5e9,stroke:#b0bec5,color:#616161
-    classDef data fill:#fff8e1,stroke:#b0bec5,color:#616161
-    classDef external fill:#fce4ec,stroke:#b0bec5,color:#616161
+    classDef frontend fill:#e3f2fd,stroke:#1976d2,color:#000
+    classDef api fill:#ede7f6,stroke:#7b1fa2,color:#000
+    classDef infrastructure fill:#e8f5e9,stroke:#388e3c,color:#000
+    classDef data fill:#fff8e1,stroke:#f57c00,color:#000
+    classDef external fill:#fce4ec,stroke:#c2185b,color:#000
+    classDef cicd fill:#f3e5f5,stroke:#8e24aa,color:#000
     
-    class A1,A3,B1 frontend
-    class B2,C,D api
-    class E,F,G microservice
+    class FR,J1,J2 frontend
+    class B2,C,D,F,E,G api
+    class CD,CR,VPS,GHCR infrastructure
     class H,I data
     class K1,K2,K3 external
+    class GA,GB,GC,GD cicd
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -251,6 +269,7 @@ ContributionAPI uses read-only tokens for secure access to external services.
 
 **GitHub Personal Access Token:**
 1. Go to GitHub Settings → Developer settings → Personal access tokens
+    - Or visit https://github.com/settings/tokens/new?scopes=read:user
 2. Generate new token (classic) with these scopes:
    - `read:user` (Read ALL user profile data)
 
@@ -327,6 +346,11 @@ This project follows our [Code of Conduct](CODE_OF_CONDUCT.md). By participating
 ## License
 
 Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
+
+## Acknowledgement
+
+- [grubersjoe/react-github-calendar](https://github.com/grubersjoe/react-github-calendar)
+- [grubersjoe/github-contributions-api](https://github.com/grubersjoe/github-contributions-api)
 
 ## Contact
 

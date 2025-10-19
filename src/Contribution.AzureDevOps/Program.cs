@@ -18,10 +18,9 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
-
         builder.Services.AddControllers();
         builder.Services.AddMemoryCache();
-        builder.Services.AddHttpClient(); // for REST calls if needed
+        builder.Services.AddHttpClient();
         builder.Services.Configure<ContributionsOptions>(builder.Configuration.GetSection("Contributions"));
 
         // Register cache service as singleton for shared caching across requests

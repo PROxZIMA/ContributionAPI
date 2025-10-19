@@ -37,6 +37,16 @@ public class GitHubContributionsManager(
             return errorResponse;
         }
 
+        // Check if the cached response has errors but no contributions (failed request)
+        if (cacheResult.Value.Contributions.Count == 0 && cacheResult.Value.Meta.Errors.Count > 0)
+        {
+            // Return the error response as-is, just update metadata
+            var errorResponse = CloneResponseWithFiltering(cacheResult.Value, includeBreakdown, includeActivity);
+            errorResponse.Meta.ElapsedMs = stopwatch.ElapsedMilliseconds;
+            errorResponse.Meta.CacheHit = cacheResult.IsHit;
+            return errorResponse;
+        }
+
         // Clone the cached response and filter based on requested options
         var response = CloneResponseWithFiltering(cacheResult.Value, includeBreakdown, includeActivity);
         response.Meta.ElapsedMs = stopwatch.ElapsedMilliseconds;
@@ -69,7 +79,12 @@ public class GitHubContributionsManager(
                 if (!string.IsNullOrWhiteSpace(ge.Message))
                 {
                     var path = ge.Path != null ? string.Join('.', ge.Path) : null;
-                    errors.Add(path == null ? ge.Message! : $"{path}: {ge.Message}");
+                    var locations = ge.Locations != null ? string.Join(',', ge.Locations.Select(l => $"(Line {l.Line}, Column {l.Column})")) : null;
+                    var errorType = !string.IsNullOrWhiteSpace(ge.Type) ? $"[{ge.Type}] " : "";
+                    var errorMessage = path == null
+                        ? (locations == null ? ge.Message! : $"{ge.Message} at {locations}")
+                        : (locations == null ? $"({path}): {ge.Message}" : $"({path}): {ge.Message} at {locations}");
+                    errors.Add($"{errorType}{errorMessage}".Trim());
                 }
             }
         }
@@ -78,7 +93,10 @@ public class GitHubContributionsManager(
         {
             if (errors.Count == 0)
                 errors.Add($"Could not resolve user or contributions for {username}");
-            return null; // Return null to indicate failure
+            
+            // Return response with errors instead of null to properly report GraphQL errors
+            response.Meta.Errors = errors;
+            return response;
         }
 
         var collection = user.ContributionsCollection;
