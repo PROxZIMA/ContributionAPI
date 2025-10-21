@@ -1,8 +1,21 @@
 version: "3.9"
 
 services:
+  portainer:
+    image: portainer/portainer-ce:lts
+    container_name: portainer
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    ports:
+      - "3420:9443"
+    networks:
+      - contribution-network
+
   caddy:
     image: caddy:2.8-alpine
+    container_name: caddy
     restart: unless-stopped
     ports:
       - "80:80"
@@ -22,6 +35,7 @@ services:
   frontend:
     image: ghcr.io/proxzima/contribution-manager-app:latest
     restart: unless-stopped
+    container_name: frontend
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -44,6 +58,7 @@ services:
   backend-hub:
     image: ghcr.io/proxzima/contribution-hub-api:latest
     restart: unless-stopped
+    container_name: backend-hub
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
@@ -69,6 +84,7 @@ services:
   backend-github:
     image: ghcr.io/proxzima/contribution-github-api:latest
     restart: unless-stopped
+    container_name: backend-github
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
@@ -88,6 +104,7 @@ services:
   backend-azuredevops:
     image: ghcr.io/proxzima/contribution-azuredevops-api:latest
     restart: unless-stopped
+    container_name: backend-azuredevops
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
@@ -108,6 +125,8 @@ volumes:
   caddy_data:
     driver: local
   caddy_config:
+    driver: local
+  portainer_data:
     driver: local
 
 networks:

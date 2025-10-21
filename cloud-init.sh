@@ -42,6 +42,7 @@ echo ">>> Configuring firewall"
 ufw allow 22
 ufw allow 80
 ufw allow 443
+ufw allow 3420/tcp
 ufw --force enable
 
 echo ">>> Cloning repository into $APP_DIR"
@@ -73,7 +74,7 @@ if [ -f "$GOOGLE_CREDS_FILE" ]; then
   echo "Setting up Google Application Credentials..."
   cat "$GOOGLE_CREDS_FILE" | base64 --decode > /srv/app/.secrets/google-credentials.json
   chown deploy:deploy /srv/app/.secrets/google-credentials.json
-  chmod 644 /srv/app/.secrets/google-credentials.json  # Make readable by all users
+  chmod 644 /srv/app/.secrets/google-credentials.json
   echo "Google credentials configured successfully"
 fi
 EOF
