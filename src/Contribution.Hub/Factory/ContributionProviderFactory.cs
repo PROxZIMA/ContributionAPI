@@ -29,7 +29,8 @@ public class ContributionProviderFactory : IContributionProviderFactory
         _providerImplementations = new Dictionary<string, ProviderImplementation>
         {
             { ProviderNames.Azure, GetAzureDevOpsContributionsAsync },
-            { ProviderNames.GitHub, GetGitHubContributionsAsync }
+            { ProviderNames.GitHub, GetGitHubContributionsAsync },
+            { ProviderNames.GitLab, GetGitLabContributionsAsync }
         };
     }
 
@@ -128,6 +129,45 @@ public class ContributionProviderFactory : IContributionProviderFactory
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to fetch GitHub contributions for username {Username}", userData.GitHub.Username);
+            providerContribution.IsSuccessful = false;
+            providerContribution.ErrorMessage = ex.Message;
+        }
+
+        return providerContribution;
+    }
+
+    private async Task<ProviderContribution> GetGitLabContributionsAsync(
+        UserData userData,
+        int year,
+        bool includeActivity,
+        bool includeBreakdown)
+    {
+        // Check if GitLab data exists
+        if (userData.GitLab == null)
+        {
+            return CreateProviderNotFoundError(ProviderNames.GitLab);
+        }
+
+        var providerContribution = new ProviderContribution
+        {
+            Provider = ProviderNames.GitLab
+        };
+
+        try
+        {
+            var contributionsResponse = await _serviceClient.GetGitLabContributionsAsync(
+                userData.GitLab.Username,
+                year,
+                userData.GitLab.Token,
+                includeBreakdown,
+                includeActivity);
+
+            providerContribution.IsSuccessful = true;
+            providerContribution.Data = contributionsResponse;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to fetch GitLab contributions for username {Username}", userData.GitLab.Username);
             providerContribution.IsSuccessful = false;
             providerContribution.ErrorMessage = ex.Message;
         }

@@ -45,6 +45,26 @@
             }
         },
         {
+            "name": "Debug GitLab",
+            "type": "coreclr",
+            "request": "launch",
+            "requireExactSource": false,
+            "console": "integratedTerminal",
+            "args": [],
+            "preLaunchTask": "Debug build GitLab",
+            "program": "${workspaceFolder}/src/Contribution.GitLab/bin/Debug/net9.0/Contribution.GitLab.dll",
+            "cwd": "${workspaceFolder}/src/Contribution.GitLab/",
+            "launchSettingsProfile": "https",
+            // "postDebugTask": "Clear debug ENV variable",
+            "stopAtEntry": false,
+            "launchBrowser": {
+                "enabled": false
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+            }
+        },
+        {
             "name": "Debug Hub",
             "type": "coreclr",
             "request": "launch",

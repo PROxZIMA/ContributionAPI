@@ -69,6 +69,7 @@ services:
       - ./.secrets/google-credentials.json:/app/.secrets/google-credentials.json:ro
     depends_on:
       - backend-github
+      - backend-gitlab
       - backend-azuredevops
     expose:
       - "5000"
@@ -85,6 +86,26 @@ services:
     image: ghcr.io/proxzima/contribution-github-api:latest
     restart: unless-stopped
     container_name: backend-github
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
+    expose:
+      - "5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - contribution-network
+
+  backend-gitlab:
+    image: ghcr.io/proxzima/contribution-gitlab-api:latest
+    restart: unless-stopped
+    container_name: backend-gitlab
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000

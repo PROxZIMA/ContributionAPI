@@ -62,4 +62,29 @@ public class ContributionServiceClient(HttpClient httpClient, IOptions<HubOption
         var content = await response.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<ContributionsResponse>(content) ?? new ContributionsResponse();
     }
+
+    public async Task<ContributionsResponse> GetGitLabContributionsAsync(
+        string username, 
+        int year, 
+        string pat, 
+        bool includeBreakdown, 
+        bool includeActivity)
+    {
+        var url = $"{_serviceUrls.GitLabApiUrl}/contributions" +
+                  $"?username={Uri.EscapeDataString(username)}" +
+                  $"&year={year}" +
+                  $"&includeBreakdown={includeBreakdown}" +
+                  $"&includeActivity={includeActivity}";
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        
+        // Add Bearer token for GitLab
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", pat);
+
+        var response = await httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<ContributionsResponse>(content) ?? new ContributionsResponse();
+    }
 }
