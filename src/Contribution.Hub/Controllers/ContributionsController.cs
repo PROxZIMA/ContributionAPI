@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Contribution.Hub.Managers;
 using Contribution.Hub.Models;
 using Contribution.Hub.Services;
+using Contribution.Hub.Attributes;
 
 namespace Contribution.Hub.Controllers;
 
@@ -20,7 +21,7 @@ public class ContributionsController(
     public async Task<IActionResult> Get(
         [FromQuery] string userId,
         [FromQuery] int year,
-        [FromQuery] string[]? providers = null,
+        [FromQuery, CommaDelimitedArray] string[]? providers = null,
         [FromQuery] bool includeActivity = false,
         [FromQuery] bool includeBreakdown = false)
     {
@@ -63,7 +64,7 @@ public class ContributionsController(
     public async Task<IActionResult> Post(
         [FromBody] UserData userData,
         [FromQuery] int year,
-        [FromQuery] string[]? providers = null,
+        [FromQuery, CommaDelimitedArray] string[]? providers = null,
         [FromQuery] bool includeActivity = false,
         [FromQuery] bool includeBreakdown = false)
     {
@@ -106,7 +107,7 @@ public class ContributionsController(
     public async Task<IActionResult> GetSvg(
         [FromQuery] string userId,
         [FromQuery] int year,
-        [FromQuery] string[]? providers = null,
+        [FromQuery, CommaDelimitedArray] string[]? providers = null,
         [FromQuery] int blockMargin = 4,
         [FromQuery] int blockRadius = 2,
         [FromQuery] int blockSize = 12,
@@ -117,7 +118,7 @@ public class ContributionsController(
         [FromQuery] bool hideTotalCount = false,
         [FromQuery] int maxLevel = 4,
         [FromQuery] bool hideWeekdayLabels = false,
-        [FromQuery] string? weekdayLabels = null,
+        [FromQuery, CommaDelimitedArray] string[]? weekdayLabels = null,
         [FromQuery] int weekStart = 0,
         [FromQuery] bool showLoadingAnimation = true)
     {
@@ -193,7 +194,7 @@ public class ContributionsController(
     public async Task<IActionResult> PostSvg(
         [FromBody] UserData userData,
         [FromQuery] int year,
-        [FromQuery] string[]? providers = null,
+        [FromQuery, CommaDelimitedArray] string[]? providers = null,
         [FromQuery] int blockMargin = 4,
         [FromQuery] int blockRadius = 2,
         [FromQuery] int blockSize = 12,
@@ -204,7 +205,7 @@ public class ContributionsController(
         [FromQuery] bool hideTotalCount = false,
         [FromQuery] int maxLevel = 4,
         [FromQuery] bool hideWeekdayLabels = false,
-        [FromQuery] string? weekdayLabels = null,
+        [FromQuery, CommaDelimitedArray] string[]? weekdayLabels = null,
         [FromQuery] int weekStart = 0,
         [FromQuery] bool showLoadingAnimation = true)
     {

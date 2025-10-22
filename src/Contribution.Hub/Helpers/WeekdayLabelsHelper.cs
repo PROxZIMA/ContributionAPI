@@ -18,7 +18,7 @@ public class WeekdayLabelsConfig
             _showByIndex[dayIndex] = show;
     }
 
-    public static WeekdayLabelsConfig Initialize(bool hideWeekdayLabels, string? weekdayLabels, int weekStart)
+    public static WeekdayLabelsConfig Initialize(bool hideWeekdayLabels, string[]? weekdayLabels, int weekStart)
     {
         var config = new WeekdayLabelsConfig();
 
@@ -31,10 +31,9 @@ public class WeekdayLabelsConfig
         config.ShouldShow = true;
 
         // If specific weekday names are provided, use those
-        if (!string.IsNullOrWhiteSpace(weekdayLabels))
+        if (weekdayLabels is not null && weekdayLabels.Length > 0)
         {
-            var dayNames = weekdayLabels.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            foreach (var dayName in dayNames)
+            foreach (var dayName in weekdayLabels)
             {
                 var index = DayNameToIndex(dayName?.ToLower());
                 if (index.HasValue)

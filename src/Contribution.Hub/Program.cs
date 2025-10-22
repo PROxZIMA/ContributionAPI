@@ -3,11 +3,15 @@ using Contribution.Hub.Repository;
 using Contribution.Hub.Services;
 using Contribution.Hub.Managers;
 using Contribution.Hub.Factory;
+using Contribution.Hub.Attributes;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.ModelBinderProviders.Insert(0, new CommaDelimitedArrayAttribute());
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

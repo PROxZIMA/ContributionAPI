@@ -52,11 +52,11 @@ public class SvgOptions
     public bool HideWeekdayLabels { get; set; } = false;
 
     /// <summary>
-    /// Comma-separated list of specific weekdays to show labels for.
+    /// List of specific weekdays to show labels for.
     /// Examples: "mon,wed,fri" or "sun,sat" or "monday,wednesday,friday"
     /// If null and HideWeekdayLabels is false, shows every other day by default.
     /// </summary>
-    public string? WeekdayLabels { get; set; }
+    public string[]? WeekdayLabels { get; set; }
 
     /// <summary>
     /// Custom labels for months, weekdays, and legend text.
