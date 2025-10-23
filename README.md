@@ -304,7 +304,8 @@ For detailed API documentation, visit the Swagger UI at `http://localhost:5298/s
 - [x] Set up CI/CD via GitHub Actions to VPS using Docker for hosting
 
 ### Version 1.2 (Q1 2026)
-- [ ] GitLab integration
+- [x] GitLab integration
+- [ ] Template for new Providers API
 - [ ] Bitbucket integration
 - [ ] Advanced analytics and insights
 - [ ] GraphQL API support (optional)
