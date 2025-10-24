@@ -48,7 +48,7 @@ public class Program
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
                 Scheme = "basic",
-                Description = "Basic Authentication header using the Bearer scheme. Example: \"Authorization: Basic {base64(:PAT)}\"",
+                Description = "Basic Authentication header using the Basic scheme. Example: \"Authorization: Basic {base64(:PAT)}\"",
                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Basic" }
             };
             setup.AddSecurityDefinition(basicSecurityScheme.Reference.Id, basicSecurityScheme);

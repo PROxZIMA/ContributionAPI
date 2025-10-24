@@ -15,7 +15,6 @@
             "program": "${workspaceFolder}/src/Contribution.AzureDevOps/bin/Debug/net9.0/Contribution.AzureDevOps.dll",
             "cwd": "${workspaceFolder}/src/Contribution.AzureDevOps/",
             "launchSettingsProfile": "https",
-            // "postDebugTask": "Clear debug ENV variable",
             "stopAtEntry": false,
             "launchBrowser": {
                 "enabled": false
@@ -35,7 +34,6 @@
             "program": "${workspaceFolder}/src/Contribution.GitHub/bin/Debug/net9.0/Contribution.GitHub.dll",
             "cwd": "${workspaceFolder}/src/Contribution.GitHub/",
             "launchSettingsProfile": "https",
-            // "postDebugTask": "Clear debug ENV variable",
             "stopAtEntry": false,
             "launchBrowser": {
                 "enabled": false
@@ -55,13 +53,12 @@
             "program": "${workspaceFolder}/src/Contribution.GitLab/bin/Debug/net9.0/Contribution.GitLab.dll",
             "cwd": "${workspaceFolder}/src/Contribution.GitLab/",
             "launchSettingsProfile": "https",
-            // "postDebugTask": "Clear debug ENV variable",
             "stopAtEntry": false,
             "launchBrowser": {
                 "enabled": false
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_ENVIRONMENT": "Development"
             }
         },
         {
@@ -75,13 +72,12 @@
             "program": "${workspaceFolder}/src/Contribution.Hub/bin/Debug/net9.0/Contribution.Hub.dll",
             "cwd": "${workspaceFolder}/src/Contribution.Hub/",
             "launchSettingsProfile": "https",
-            // "postDebugTask": "Clear debug ENV variable",
             "stopAtEntry": false,
             "launchBrowser": {
                 "enabled": false
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_ENVIRONMENT": "Development"
             }
         }
     ]
