@@ -13,6 +13,7 @@ public class ServiceUrls
 {
     public string AzureDevOpsApiUrl { get; set; } = string.Empty;
     public string GitHubApiUrl { get; set; } = string.Empty;
+    public string GitLabApiUrl { get; set; } = string.Empty;
 }
 
 public class GcpOptions

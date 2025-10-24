@@ -18,4 +18,11 @@ public interface IContributionServiceClient
         string pat, 
         bool includeBreakdown, 
         bool includeActivity);
+
+    Task<ContributionsResponse> GetGitLabContributionsAsync(
+        string username, 
+        int year, 
+        string pat, 
+        bool includeBreakdown, 
+        bool includeActivity);
 }

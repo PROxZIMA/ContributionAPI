@@ -13,6 +13,9 @@ public class UserData
 
     [FirestoreProperty(ProviderNames.GitHub)]
     public GitHubUserData? GitHub { get; set; }
+
+    [FirestoreProperty(ProviderNames.GitLab)]
+    public GitLabUserData? GitLab { get; set; }
 }
 
 [FirestoreData]
@@ -29,6 +32,15 @@ public class AzureDevOpsUserData
 
 [FirestoreData]
 public class GitHubUserData
+{
+    [FirestoreProperty("username")]
+    public string Username { get; set; } = string.Empty;
+
+    public string Token { get; set; } = string.Empty;
+}
+
+[FirestoreData]
+public class GitLabUserData
 {
     [FirestoreProperty("username")]
     public string Username { get; set; } = string.Empty;

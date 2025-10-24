@@ -19,6 +19,13 @@ public static class CacheKeyHelper
         return $"github-contributions:{username}:{year}:{patHash}";
     }
 
+    public static string GenerateGitLabContributionsCacheKey(string username, int year, string pat)
+    {
+        // Hash the PAT for security - we don't want to store PATs in cache keys
+        var patHash = ComputeHash(pat);
+        return $"gitlab-contributions:{username}:{year}:{patHash}";
+    }
+
     private static string ComputeHash(string input)
     {
         var inputBytes = Encoding.UTF8.GetBytes(input);

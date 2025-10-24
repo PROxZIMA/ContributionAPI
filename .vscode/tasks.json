@@ -11,6 +11,7 @@
             "dependsOn": [
                 "Run Azure",
                 "Run GitHub",
+                "Run GitLab",
                 "Run Hub"
             ],
             "dependsOrder": "parallel",
@@ -67,6 +68,37 @@
             "type": "shell",
             "options": {
                 "cwd": "${workspaceFolder}/src/Contribution.GitHub"
+            },
+            "command": "dotnet build --property WarningLevel=0 && dotnet watch --non-interactive --property WarningLevel=0 run",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent",
+                "group": "shared"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "label": "Debug build GitLab",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/Contribution.GitLab"
+            },
+            "command": "dotnet build --property WarningLevel=0",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "label": "Run GitLab",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/Contribution.GitLab"
             },
             "command": "dotnet build --property WarningLevel=0 && dotnet watch --non-interactive --property WarningLevel=0 run",
             "problemMatcher": [],

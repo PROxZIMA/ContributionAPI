@@ -57,6 +57,10 @@ public class UserDataRepository : IUserDataRepository
                             if (userData.GitHub != null)
                                 userData.GitHub.Token = token;
                             break;
+                        case ProviderNames.GitLab:
+                            if (userData.GitLab != null)
+                                userData.GitLab.Token = token;
+                            break;
                     }
                 }
             }

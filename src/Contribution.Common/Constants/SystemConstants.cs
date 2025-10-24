@@ -26,4 +26,5 @@ public static class ProviderNames
 {
     public const string Azure = "azure";
     public const string GitHub = "github";
+    public const string GitLab = "gitlab";
 }

@@ -6,6 +6,16 @@ chm.proxzima.dev {
         respond "OK" 200
     }
 
+    # Route GitLab API requests
+    route /_api/gl/* {
+        uri strip_prefix /_api/gl
+        reverse_proxy backend-gitlab:5000 {
+            health_uri /health
+            health_interval 30s
+            health_timeout 10s
+        }
+    }
+
     # Route GitHub API requests
     route /_api/gh/* {
         uri strip_prefix /_api/gh
