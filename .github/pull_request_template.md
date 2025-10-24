@@ -22,6 +22,7 @@ Closes: #[issue_number]
 - [ ] Contribution.GitLab
 - [ ] Contribution.Common
 - [ ] Documentation
+- [ ] Infrastructure
 
 ### Key Changes:
 1. Change 1

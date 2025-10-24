@@ -58,7 +58,7 @@ chm.proxzima.dev {
 
     # Everything else goes to frontend
     reverse_proxy frontend:3000 {
-        health_uri /_api/health
+        health_uri /api/health
         health_interval 30s
         health_timeout 10s
     }
