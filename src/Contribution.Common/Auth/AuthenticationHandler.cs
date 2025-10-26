@@ -18,6 +18,8 @@ public class CommonAuthenticationHandler(
         var endpoint = Context.GetEndpoint();
         if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
         {
+            // If the endpoint allows anonymous access, skip authentication
+            // Used for health check endpoints
             return Task.FromResult(AuthenticateResult.NoResult());
         }
 
