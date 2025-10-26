@@ -73,8 +73,7 @@ app.UseCors(builder =>
 
 app.MapControllers();
 
-// Map health check endpoints
-app.MapHealthChecks("/health");
-app.MapHealthChecks("/ready");
+app.MapHealthChecks("/health").AllowAnonymous();
+app.MapHealthChecks("/ready").AllowAnonymous();
 
 app.Run();

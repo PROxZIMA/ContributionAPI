@@ -3,6 +3,8 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Contribution.Common.Auth;
 
@@ -13,6 +15,14 @@ public class CommonAuthenticationHandler(
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        var endpoint = Context.GetEndpoint();
+        if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
+        {
+            // If the endpoint allows anonymous access, skip authentication
+            // Used for health check endpoints
+            return Task.FromResult(AuthenticateResult.NoResult());
+        }
+
         (var authScheme, var token) = AuthHelpers.ExtractAuthDetails(Request.Headers.Authorization.ToString() ?? string.Empty) ?? (string.Empty, string.Empty);
 
         if (string.IsNullOrWhiteSpace(authScheme))
