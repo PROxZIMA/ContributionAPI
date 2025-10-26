@@ -106,33 +106,40 @@ graph TB
 
     %% VPS Deployment Infrastructure
     subgraph "VPS Deployment / Caddy Reverse Proxy + TLS"
-        CR --> |"/_api/hub/* → backend-hub:5000"| B2
-        CR --> |"/ → frontend:3000"| FR
-        CR --> |"/_api/gh/* → backend-github:5000"| F
-        CR --> |"/_api/provider/* → backend-provider:5000"| G
         subgraph "Docker Compose Services"
-
             subgraph "Frontend Container"
                 FR[Frontend App<br/>contribution-manager-app]
                 FR -.-> |Token Management| J2[Token Management UI]
                 FR -.-> |User Management| J1[User Registration/Login]
             end
-            
             subgraph "Backend Containers"
-                B2[Contribution.Hub API<br/>backend-hub]
-                B2 --> C[Contribution Aggregator]
-                C --> D[Provider Factory]
+                C[Contribution.Hub API<br/>backend-hub]
+                D[Provider Factory]
                 E[Contribution.AzureDevOps API<br/>backend-azuredevops]
                 F[Contribution.GitHub API<br/>backend-github]
                 G[Contribution.Provider API<br/>backend-provider]
+                DB[Valkey Cache]
             end
         end
-
-        D --> E
-        D --> F
-        D --> G
-        CR --> |"/_api/az/* → backend-azuredevops:5000"| E
     end
+    
+    %% External APIs
+    E ---> K1
+    F ---> K2
+    G ---> K3
+
+    C --> D
+    D --> E
+    D --> F
+    D --> G
+    CR --> |"/_api/az/* → backend-azuredevops:5000"| E
+    CR --> |"/_api/gh/* → backend-github:5000"| F
+    CR --> |"/_api/provider/* → backend-provider:5000"| G
+    CR --> |"/_api/* → backend-hub:5000"| C
+    CR --> |"/ → frontend:3000"| FR
+    E --> DB
+    F --> DB
+    G --> DB
     
     %% Data Access
     C --> I
@@ -143,16 +150,11 @@ graph TB
     J2 -.-> H
     J1 -.-> H[Firebase Firestore]
     
-    %% External APIs
-    E --> K2[Azure DevOps API SDK]
-    F --> K1[GitHub GraphQL API]
-    G --> K3[Future APIs]
-    
     %% External Services
     subgraph "External Services"
-        K1
-        K2
-        K3
+        K1[Azure DevOps API SDK]
+        K2[GitHub GraphQL API]
+        K3[Future APIs]
         subgraph "Data & Security Layer"
             H
             I
@@ -171,7 +173,7 @@ graph TB
     classDef cicd fill:#f3e5f5,stroke:#8e24aa,color:#000
     
     class FR,J1,J2 frontend
-    class B2,C,D,F,E,G api
+    class B2,C,D,F,E,G,DB api
     class CD,CR,VPS,GHCR infrastructure
     class H,I data
     class K1,K2,K3 external
@@ -309,10 +311,10 @@ For detailed API documentation, visit the Swagger UI at `http://localhost:5298/s
 - [ ] Bitbucket integration
 - [ ] Advanced analytics and insights
 - [ ] GraphQL API support (optional)
-- [ ] Persistant caching strategies
-    - [ ] Redis
-    - [ ] Serve last cache
-    - [ ] Queue cache refresh per user per minute
+- [ ] Persistent caching strategies
+    - [x] Key-based caching
+    - [x] Serve last cache
+    - [ ] Intelligent cache refresh based on usage
     - [ ] Environment based caching configuration
 
 ### Version 2.0 (Q2 2026)
