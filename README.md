@@ -310,9 +310,9 @@ For detailed API documentation, visit the Swagger UI at `http://localhost:5298/s
 - [ ] Advanced analytics and insights
 - [ ] GraphQL API support (optional)
 - [ ] Persistant caching strategies
-    - [ ] Redis
-    - [ ] Serve last cache
-    - [ ] Queue cache refresh per user per minute
+    - [x] Key-based caching
+    - [x] Serve last cache
+    - [ ] Intellignet cache refresh based on usage
     - [ ] Environment based caching configuration
 
 ### Version 2.0 (Q2 2026)

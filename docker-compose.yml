@@ -55,6 +55,24 @@ services:
     networks:
       - contribution-network
 
+  valkey:
+    image: valkey/valkey:8.0-alpine
+    container_name: valkey
+    restart: unless-stopped
+    command: valkey-server --maxmemory 256mb --maxmemory-policy allkeys-lru --appendonly yes --appendfsync everysec
+    ports:
+      - "6379:6379"
+    volumes:
+      - valkey_data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - contribution-network
+
   backend-hub:
     image: ghcr.io/proxzima/contribution-hub-api:latest
     restart: unless-stopped
@@ -68,9 +86,12 @@ services:
     volumes:
       - ./.secrets/google-credentials.json:/app/.secrets/google-credentials.json:ro
     depends_on:
-      - backend-github
-      - backend-gitlab
-      - backend-azuredevops
+      backend-github:
+        condition: service_healthy
+      backend-gitlab:
+        condition: service_healthy
+      backend-azuredevops:
+        condition: service_healthy
     expose:
       - "5000"
     healthcheck:
@@ -91,6 +112,9 @@ services:
       - ASPNETCORE_URLS=http://+:5000
       - DOTNET_RUNNING_IN_CONTAINER=true
       - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
+    depends_on:
+      valkey:
+        condition: service_healthy
     expose:
       - "5000"
     healthcheck:
@@ -111,6 +135,9 @@ services:
       - ASPNETCORE_URLS=http://+:5000
       - DOTNET_RUNNING_IN_CONTAINER=true
       - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
+    depends_on:
+      valkey:
+        condition: service_healthy
     expose:
       - "5000"
     healthcheck:
@@ -131,6 +158,9 @@ services:
       - ASPNETCORE_URLS=http://+:5000
       - DOTNET_RUNNING_IN_CONTAINER=true
       - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
+    depends_on:
+      valkey:
+        condition: service_healthy
     expose:
       - "5000"
     healthcheck:
@@ -143,6 +173,8 @@ services:
       - contribution-network
 
 volumes:
+  valkey_data:
+    driver: local
   caddy_data:
     driver: local
   caddy_config:
