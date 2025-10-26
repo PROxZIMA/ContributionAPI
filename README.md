@@ -311,10 +311,10 @@ For detailed API documentation, visit the Swagger UI at `http://localhost:5298/s
 - [ ] Bitbucket integration
 - [ ] Advanced analytics and insights
 - [ ] GraphQL API support (optional)
-- [ ] Persistant caching strategies
+- [ ] Persistent caching strategies
     - [x] Key-based caching
     - [x] Serve last cache
-    - [ ] Intellignet cache refresh based on usage
+    - [ ] Intelligent cache refresh based on usage
     - [ ] Environment based caching configuration
 
 ### Version 2.0 (Q2 2026)

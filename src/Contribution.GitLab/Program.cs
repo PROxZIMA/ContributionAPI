@@ -17,9 +17,13 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddControllers();
-        
+
         // Configure database
-        var databaseConnectionString = builder.Configuration.GetSection("Database:ConnectionString").Value!;
+        var databaseConnectionString = builder.Configuration.GetSection("Database:ConnectionString").Value;
+        if (string.IsNullOrWhiteSpace(databaseConnectionString))
+        {
+            throw new InvalidOperationException("Database connection string is missing from configuration. Please set 'Database:ConnectionString' in your configuration file or environment variables.");
+        }
         builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(databaseConnectionString));
         
         builder.Services.AddHttpClient();

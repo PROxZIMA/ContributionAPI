@@ -98,7 +98,6 @@ public sealed class CacheManager : ICacheManager, IDisposable
 
     public void Dispose()
     {
-        // RESP connection is managed by DI container, no explicit disposal needed
-        // ConnectionMultiplexer is disposed by the DI container
+        // ConnectionMultiplexer is managed by the DI container, no explicit disposal needed
     }
 }
